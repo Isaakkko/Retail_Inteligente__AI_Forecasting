@@ -1,0 +1,269 @@
+Fase 2 Proyecto Big Data 
+
+Modelado y Almacenamiento 
+
+Dataset: https://www.kaggle.com/datasets/anirudhchauhan/retail-store-inventory-forecasting-dataset
+
+Tiene datos de fecha, ID de tienda, ID de producto, Categoria, region, nivel de inventario, unidades vendidas, unidades ordenadas,
+demanda de forecast, precio, descuento, condición del clima, dia festivo/promociones, precio de la competencia y temporada.
+73,000 registros.
+Contiene ventas históricas, inventario, clima, promociones y variables relevantes para forecasting
+
+
+Diagrama del modelo 
+El modelo está pensado para análisis de ventas, inventario y predicción de demanda.
+El esquema estrella facilita análisis, dashboards y modelos de IA con datos desnormalizados y eficientes para consultas
+
+
+Data Warehouse con esquema estrella
+
+
+Fact Table
+
+ventas_inventario 
+
+date id
+store id
+product id
+weather id
+units sold
+units ordered 
+inventory level
+demand forecast
+price 
+discount
+competitor pricing 
+
+
+Dimensiones
+
+dim_tiempo
+date
+año
+mes
+dia
+seasonality
+holiday
+
+dim_tienda
+store id
+region
+
+dim_producto
+product id
+category 
+
+dim_clima
+weather condition
+
+
+
+Script Base de datos
+
+CREATE DATABASE RetailDW;
+USE RetailDW;
+
+-- Dimension Tiempo
+
+CREATE TABLE dim_tiempo (
+id_tiempo INT IDENTITY(1,1) PRIMARY KEY,
+fecha DATE NOT NULL,
+anio INT,
+mes INT,
+dia INT,
+seasonality VARCHAR(20),
+holiday BIT 
+);
+
+-- Dimension Tienda
+
+CREATE TABLE dim_tienda (
+id_tienda INT IDENTITY(1,1) PRIMARY KEY,
+store_id VARCHAR(10) NOT NULL,
+region VARCHAR(50)
+);
+
+-- Dimension Producto
+
+CREATE TABLE dim_producto (
+id_producto INT IDENTITY(1,1) PRIMARY KEY,
+product_id VARCHAR(10) NOT NULL,
+category VARCHAR(50) 
+);
+
+-- Dimension Clima
+
+CREATE TABLE dim_clima (
+id_clima INT IDENTITY(1,1) PRIMARY KEY,
+weather_condition VARCHAR(30)
+);
+
+-- Fact Table Ventas Inventario
+
+CREATE TABLE fact_ventas_inventario (
+fk_tiempo INT,
+fk_tienda INT,
+fk_producto INT,
+fk_clima INT,
+units_sold INT,
+units_ordered INT,
+inventory_level INT,
+demand_forecast DECIMAL(10,2),
+price DECIMAL(10,2),
+discount DECIMAL(5,2),
+competitor_pricing DECIMAL(10,2),
+
+PRIMARY KEY (fk_tiempo, fk_tienda, fk_producto, fk_clima),
+
+FOREIGN KEY (fk_tiempo) REFERENCES dim_tiempo(id_tiempo),
+FOREIGN KEY (fk_tienda) REFERENCES dim_tienda(id_tienda),
+FOREIGN KEY (fk_producto) REFERENCES dim_producto(id_producto),
+FOREIGN KEY (fk_clima) REFERENCES dim_clima(id_clima)
+);
+
+-- Tabla temporal para cargar el csv y luego hacer Joins a las dimensiones y fact table
+
+CREATE TABLE staging_retail (
+fecha DATE,
+store_id VARCHAR(10),
+product_id VARCHAR(10),
+category VARCHAR(50),
+region VARCHAR(50),
+inventory_level INT,
+units_sold INT,
+units_ordered INT,
+demand_forecast DECIMAL(10,2),
+price DECIMAL(10,2),
+discount DECIMAL(5,2),
+weather_condition VARCHAR(30),
+holiday BIT,
+competitor_pricing DECIMAL(10,2),
+seasonality VARCHAR(20)
+);
+
+
+-- Importar csv con bulk insert 
+BULK INSERT staging_retail
+FROM 'C:\csv retail\retail_store_inventory.csv'
+WITH (
+    FIRSTROW = 2,
+    FIELDTERMINATOR = ',',
+    ROWTERMINATOR = '\n',
+    TABLOCK
+);
+
+-- Consulta verificando que todo salio bien
+SELECT TOP 10 * FROM staging_retail;
+
+-- Poblar dimensiones
+
+-- Dimension Tiempo
+
+INSERT INTO dim_tiempo (fecha, anio, mes, dia, seasonality, holiday)
+SELECT DISTINCT 
+fecha,
+YEAR(fecha) AS anio,
+MONTH(fecha) AS mes,
+DAY(fecha) AS dia,
+seasonality,
+holiday
+FROM staging_retail;
+
+SELECT TOP 20 * FROM dim_tiempo ORDER BY fecha;
+
+-- Dimension Tienda
+
+INSERT INTO dim_tienda (store_id, region)
+SELECT DISTINCT 
+store_id, 
+region
+FROM staging_retail;
+
+SELECT * FROM dim_tienda;
+
+-- Dimension Producto
+
+INSERT INTO dim_producto (product_id, category)
+SELECT DISTINCT 
+product_id, 
+category
+FROM staging_retail;
+
+SELECT * FROM dim_producto;
+
+-- Dimension Clima
+
+INSERT INTO dim_clima (weather_condition)
+SELECT DISTINCT weather_condition
+FROM staging_retail;
+
+SELECT * FROM dim_clima;
+
+-- Fact table ventas inventario 
+
+INSERT INTO fact_ventas_inventario
+SELECT 
+t.id_tiempo,
+ti.id_tienda,
+p.id_producto,
+c.id_clima,
+s.units_sold,
+s.units_ordered,
+s.inventory_level,
+s.demand_forecast,
+s.price,
+s.discount,
+s.competitor_pricing
+
+FROM staging_retail s
+JOIN dim_tiempo t 
+ON s.fecha = t.fecha
+
+JOIN dim_tienda ti 
+ON s.store_id = ti.store_id
+
+JOIN dim_producto p 
+ON s.product_id = p.product_id
+
+JOIN dim_clima c 
+ON s.weather_condition = c.weather_condition;
+
+SELECT TOP 20 * FROM fact_ventas_inventario;
+
+
+-- Consultas de prueba
+-- Que mes se vende mas
+
+SELECT 
+t.anio,
+t.mes,
+SUM(f.units_sold) AS total_ventas
+FROM fact_ventas_inventario f
+JOIN dim_tiempo t ON f.fk_tiempo = t.id_tiempo
+GROUP BY t.anio, t.mes
+ORDER BY t.anio, t.mes;
+
+-- Ventas por categorias de productos
+
+SELECT 
+p.category,
+SUM(f.units_sold) AS total_ventas
+FROM fact_ventas_inventario f
+JOIN dim_producto p ON f.fk_producto = p.id_producto
+GROUP BY p.category
+ORDER BY total_ventas DESC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

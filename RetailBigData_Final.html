@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Inteligente & AI Forecasting — CUC Big Data</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070b12;--bg2:#0b1120;--card:#111d2e;
+  --cyan:#00d4ff;--cyan2:#00ffcc;--orange:#ff7b42;--yellow:#ffd166;--red:#ff4d6d;--purple:#a78bfa;
+  --text:#cfe0f0;--muted:#4a6a88;--border:rgba(0,212,255,0.15);
+  --mono:'IBM Plex Mono',monospace;--disp:'Barlow Condensed',sans-serif;--body:'Barlow',sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;line-height:1.65;}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;
+    padding:13px 48px;background:rgba(7,11,18,0.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-brand{font-family:var(--mono);font-size:.67rem;color:var(--cyan);letter-spacing:.16em;text-transform:uppercase;}
+.nav-links{display:flex;gap:22px;list-style:none;}
+.nav-links a{font-family:var(--mono);font-size:.6rem;color:var(--muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--cyan);}
+
+/* LAYOUT */
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 48px;}
+section{padding:96px 0 56px;}
+.section-tag{font-family:var(--mono);font-size:.65rem;color:var(--cyan);letter-spacing:.18em;text-transform:uppercase;
+             display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.section-tag::before{content:'';width:26px;height:1px;background:var(--cyan);}
+.section-tag .num{color:var(--muted);}
+h2{font-family:var(--disp);font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1;color:#fff;margin-bottom:26px;}
+h2 .hl{color:var(--cyan);}
+p.lead{font-size:1rem;color:var(--text);max-width:680px;margin-bottom:22px;line-height:1.78;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);}
+
+/* HERO */
+#portada{min-height:100vh;display:flex;align-items:center;padding-top:80px;position:relative;z-index:1;}
+.hero-meta{font-family:var(--mono);font-size:.7rem;color:var(--cyan);letter-spacing:.18em;text-transform:uppercase;
+           margin-bottom:24px;display:flex;align-items:center;gap:14px;opacity:0;animation:fadeUp .7s .1s forwards;}
+.hero-meta::before{content:'';display:inline-block;width:32px;height:1px;background:var(--cyan);}
+h1.title{font-family:var(--disp);font-size:clamp(3rem,7vw,6.2rem);font-weight:800;line-height:.93;
+         color:#fff;margin-bottom:18px;opacity:0;animation:fadeUp .7s .25s forwards;}
+h1.title .accent{color:var(--cyan);}
+.hero-sub{font-family:var(--disp);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:400;color:var(--muted);
+          margin-bottom:36px;opacity:0;animation:fadeUp .7s .38s forwards;}
+.hero-divider{width:56px;height:2px;background:var(--cyan);margin-bottom:32px;opacity:0;animation:fadeUp .7s .48s forwards;}
+.hero-team{display:flex;flex-direction:column;gap:5px;opacity:0;animation:fadeUp .7s .58s forwards;}
+.team-label{font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+.team-member{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.78rem;color:var(--text);}
+.team-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;}
+.hero-info{margin-top:32px;display:flex;flex-wrap:wrap;gap:28px;opacity:0;animation:fadeUp .7s .7s forwards;}
+.info-pill{display:flex;flex-direction:column;gap:3px;}
+.info-pill .lbl{font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;}
+.info-pill .val{font-family:var(--disp);font-size:.95rem;font-weight:600;color:var(--text);}
+.hero-deco{position:absolute;right:40px;top:50%;transform:translateY(-50%);width:360px;height:360px;pointer-events:none;opacity:0;animation:fadeIn 1.2s .8s forwards;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:52px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px 20px;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--cyan);
+                  transform:scaleX(0);transform-origin:left;transition:transform .9s ease;}
+.stat-card.go::after{transform:scaleX(1);}
+.stat-num{font-family:var(--disp);font-size:2.6rem;font-weight:800;color:var(--cyan);line-height:1;margin-bottom:5px;}
+.stat-label{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+
+/* INTRO */
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
+.intro-card h3{font-family:var(--disp);font-size:1.05rem;font-weight:700;color:var(--cyan);margin-bottom:10px;text-transform:uppercase;}
+.intro-card p{font-size:.88rem;color:var(--text);line-height:1.7;}
+
+/* OBJECTIVES */
+.obj-general{background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(0,255,204,0.03));
+             border:1px solid var(--border);border-radius:4px;padding:28px;margin-bottom:20px;}
+.obj-general h3{font-family:var(--disp);font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.obj-general p{font-size:.93rem;color:var(--text);line-height:1.78;}
+.obj-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.obj-item{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px 20px;}
+.obj-num{font-family:var(--mono);font-size:1.3rem;font-weight:600;color:var(--cyan);line-height:1;flex-shrink:0;opacity:.4;}
+.obj-text{font-size:.88rem;color:var(--text);line-height:1.65;}
+
+/* CHARTS */
+.charts-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
+.charts-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:18px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;}
+.chart-title{font-family:var(--mono);font-size:.61rem;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;
+             margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.ch-wrap{position:relative;height:240px;}
+.ch-wrap-sm{position:relative;height:200px;}
+.chart-insight{font-family:var(--mono);font-size:.61rem;color:var(--muted);margin-top:10px;
+               padding-top:9px;border-top:1px solid var(--border);line-height:1.5;}
+.chart-insight b{color:var(--cyan2);}
+
+/* CODE VIEWER */
+.code-viewer{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:26px;}
+.code-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap;}
+.code-tab{font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;
+          padding:12px 20px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;flex-shrink:0;}
+.code-tab:hover{color:var(--text);}
+.code-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(0,212,255,0.05);}
+.code-panel{display:none;}
+.code-panel.active{display:block;}
+.code-header{display:flex;justify-content:space-between;align-items:center;padding:9px 18px;
+             background:rgba(0,0,0,0.35);border-bottom:1px solid var(--border);}
+.code-filename{font-family:var(--mono);font-size:.63rem;color:var(--muted);}
+.code-lang{font-family:var(--mono);font-size:.58rem;color:var(--orange);background:rgba(255,123,66,0.1);
+           border:1px solid rgba(255,123,66,0.2);padding:2px 8px;border-radius:2px;}
+pre{padding:20px 22px;overflow-x:auto;font-family:var(--mono);font-size:.77rem;line-height:1.75;
+    color:#9cb8d4;max-height:400px;overflow-y:auto;}
+pre::-webkit-scrollbar{width:4px;height:4px;}
+pre::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+/* syntax */
+.kw{color:#c792ea;}.fn{color:#82aaff;}.st{color:#c3e88d;}.cm{color:#4a6a80;font-style:italic;}
+.nm{color:#f78c6c;}.cls{color:#ffcb6b;}.op{color:#89ddff;}.cy{color:#00d4ff;}.dec{color:#ff7b42;}
+
+/* SQL VIEWS */
+.sql-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
+.sql-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.sql-head{display:flex;justify-content:space-between;align-items:center;
+          padding:11px 16px;background:rgba(0,0,0,0.35);border-bottom:1px solid var(--border);}
+.sql-title{font-family:var(--mono);font-size:.62rem;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;}
+.sql-badge{font-family:var(--mono);font-size:.57rem;color:var(--yellow);background:rgba(255,209,102,0.1);
+           border:1px solid rgba(255,209,102,0.2);padding:2px 8px;border-radius:2px;}
+.sql-card pre{max-height:230px;font-size:.73rem;}
+.sql-result{padding:10px 16px;border-top:1px solid var(--border);background:rgba(0,255,204,0.04);}
+.sql-result-lbl{font-family:var(--mono);font-size:.57rem;color:var(--cyan2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.res-row{font-family:var(--mono);font-size:.68rem;color:var(--text);padding:2px 0;}
+.res-row span{color:var(--muted);}
+
+/* PHASES */
+.timeline{position:relative;margin-top:28px;}
+.timeline::before{content:'';position:absolute;left:27px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--cyan),transparent);}
+.phase-item{display:flex;gap:24px;margin-bottom:20px;}
+.phase-dot{width:54px;height:54px;border-radius:4px;background:var(--card);border:1px solid var(--border);
+           display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;
+           font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:.05em;position:relative;z-index:1;flex-shrink:0;text-align:center;line-height:1.2;}
+.phase-dot.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);}
+.phase-body{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 20px;flex:1;}
+.phase-header{display:flex;align-items:baseline;gap:12px;margin-bottom:7px;flex-wrap:wrap;}
+.phase-title{font-family:var(--disp);font-size:1.1rem;font-weight:700;color:#fff;}
+.phase-tech{font-family:var(--mono);font-size:.59rem;color:var(--cyan2);background:rgba(0,255,204,0.08);
+            border:1px solid rgba(0,255,204,0.18);padding:2px 8px;border-radius:2px;}
+.phase-desc{font-size:.86rem;color:var(--text);line-height:1.65;}
+.phase-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.phase-tag{font-family:var(--mono);font-size:.57rem;color:var(--muted);background:rgba(255,255,255,0.04);
+           border:1px solid rgba(255,255,255,0.07);padding:2px 9px;border-radius:2px;}
+
+/* ARCH */
+.arch-diagram{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:30px;margin-top:28px;}
+.arch-layer{display:flex;gap:12px;justify-content:center;}
+.arch-arrow{text-align:center;color:var(--muted);font-size:.9rem;padding:5px 0;}
+.arch-box{flex:1;background:rgba(0,212,255,0.05);border:1px solid var(--border);border-radius:4px;padding:12px 16px;text-align:center;}
+.arch-box.hi{background:rgba(0,212,255,0.13);border-color:var(--cyan);}
+.arch-box .al{font-family:var(--mono);font-size:.57rem;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+.arch-box .at{font-size:.78rem;color:var(--text);}
+.tech-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px;}
+.tech-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.tech-val{font-family:var(--disp);font-size:1.8rem;font-weight:800;color:var(--cyan);margin-bottom:4px;}
+.tech-desc{font-family:var(--mono);font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;}
+
+/* CONCLUSIONS */
+.conc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:28px;}
+.conc-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:22px 20px;position:relative;overflow:hidden;}
+.conc-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--cyan);}
+.conc-icon{font-size:1.4rem;margin-bottom:12px;}
+.conc-card h3{font-family:var(--disp);font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.conc-card p{font-size:.84rem;color:var(--text);line-height:1.65;}
+
+/* ML SECTION */
+.ml-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px;margin-bottom:36px;}
+.ml-metric-big{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:22px 18px;text-align:center;}
+.mlm-num{font-family:var(--disp);font-size:2.8rem;font-weight:800;color:var(--cyan);line-height:1;margin-bottom:6px;}
+.mlm-lbl{font-family:var(--mono);font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.mlm-sub{font-size:.78rem;color:var(--text);opacity:.7;}
+.ml-how{display:flex;gap:18px;margin-top:28px;}
+.ml-formula{font-family:var(--mono);font-size:.9rem;background:rgba(0,0,0,0.3);padding:10px 14px;border-radius:4px;border:1px solid var(--border);}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
+.feat-card{display:flex;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px;}
+.feat-icon{width:42px;height:42px;border-radius:4px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.feat-name{font-family:var(--mono);font-size:.72rem;color:var(--cyan);font-weight:600;margin-bottom:6px;}
+.feat-desc{font-size:.8rem;color:var(--text);line-height:1.65;}
+.ml-results{display:flex;gap:18px;margin-top:0;}
+.achieve-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.achieve-row:last-child{border-bottom:none;}
+.achieve-row p{font-size:.84rem;color:var(--text);line-height:1.6;}
+.ach-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:26px 48px;display:flex;justify-content:space-between;align-items:center;}
+.footer-l{font-family:var(--mono);font-size:.6rem;color:var(--muted);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+
+@media(max-width:800px){
+  nav{padding:12px 16px;}.nav-links{display:none;}.wrap{padding:0 16px;}
+  .stats-row,.intro-grid,.obj-list,.charts-grid-2,.charts-grid-3,.sql-grid,.conc-grid,.tech-row,
+  .ml-metrics,.ml-how,.features-grid,.ml-results{grid-template-columns:1fr;flex-direction:column;}
+  h1.title{font-size:2.5rem;}.hero-deco{display:none;}
+  footer{flex-direction:column;gap:8px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">CUC · Big Data · 2026</span>
+  <ul class="nav-links">
+    <li><a href="#portada">Inicio</a></li>
+    <li><a href="#introduccion">Intro</a></li>
+    <li><a href="#objetivos">Objetivos</a></li>
+    <li><a href="#graficos">Gráficos</a></li>
+    <li><a href="#codigo">Código</a></li>
+    <li><a href="#vistas">Vistas SQL</a></li>
+    <li><a href="#modelo">Modelo ML</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#conclusiones">Conclusiones</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ PORTADA ═══ -->
+<section id="portada">
+  <div class="wrap">
+    <div style="max-width:800px;">
+      <div class="hero-meta">Sprint 1–7 &nbsp;·&nbsp; I Cuatrimestre 2026</div>
+      <h1 class="title">Retail<br><span class="accent">Inteligente</span><br>&amp; AI Forecasting</h1>
+      <p class="hero-sub">Predicción de demanda y optimización de inventario</p>
+      <div class="hero-divider"></div>
+      <div class="hero-team">
+        <div class="team-label">Integrantes</div>
+        <div class="team-member"><span class="team-dot"></span>Isaac Ulloa Calvo</div>
+        <div class="team-member"><span class="team-dot"></span>Jean Carlo Ramirez Carranza</div>
+        <div class="team-member"><span class="team-dot"></span>Jeffrey Jimenez Cordero</div>
+      </div>
+      <div class="hero-info">
+        <div class="info-pill"><span class="lbl">Universidad</span><span class="val">CUC — Colegio Universitario de Cartago</span></div>
+        <div class="info-pill"><span class="lbl">Curso</span><span class="val">Big Data</span></div>
+        <div class="info-pill"><span class="lbl">Profesora</span><span class="val">Ericka Valverde Navarro</span></div>
+      </div>
+    </div>
+    <!-- decoración -->
+    <svg class="hero-deco" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="180" cy="180" r="148" stroke="rgba(0,212,255,0.07)" stroke-width="1"/>
+      <circle cx="180" cy="180" r="110" stroke="rgba(0,212,255,0.09)" stroke-width="1"/>
+      <circle cx="180" cy="180" r="72"  stroke="rgba(0,212,255,0.11)" stroke-width="1"/>
+      <circle cx="180" cy="180" r="36"  stroke="rgba(0,212,255,0.16)" stroke-width="1"/>
+      <circle cx="180" cy="180" r="148" stroke="rgba(0,212,255,0.5)"  stroke-width="1.5" stroke-dasharray="16 520" style="animation:spin 8s linear infinite;transform-origin:180px 180px;"/>
+      <circle cx="180" cy="180" r="110" stroke="rgba(0,255,204,0.4)"  stroke-width="1"   stroke-dasharray="10 340" style="animation:spin 12s linear infinite reverse;transform-origin:180px 180px;"/>
+      <circle cx="180" cy="32"  r="5" fill="var(--cyan)"/>
+      <circle cx="328" cy="180" r="5" fill="var(--cyan2)"/>
+      <circle cx="180" cy="328" r="5" fill="var(--cyan)"/>
+      <circle cx="32"  cy="180" r="5" fill="var(--cyan2)"/>
+      <line x1="180" y1="37"  x2="180" y2="144" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+      <line x1="323" y1="180" x2="216" y2="180" stroke="rgba(0,255,204,0.2)" stroke-width="1"/>
+      <line x1="180" y1="323" x2="180" y2="216" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+      <line x1="37"  y1="180" x2="144" y2="180" stroke="rgba(0,255,204,0.2)" stroke-width="1"/>
+      <circle cx="180" cy="180" r="15" fill="rgba(0,212,255,0.13)" stroke="var(--cyan)" stroke-width="1.5"/>
+      <circle cx="180" cy="180" r="5"  fill="var(--cyan)"/>
+      <text x="154" y="22"  font-family="IBM Plex Mono" font-size="9" fill="rgba(0,212,255,0.55)">DEMAND</text>
+      <text x="332" y="176" font-family="IBM Plex Mono" font-size="9" fill="rgba(0,255,204,0.55)">AI</text>
+      <text x="138" y="346" font-family="IBM Plex Mono" font-size="9" fill="rgba(0,212,255,0.55)">FORECAST</text>
+      <text x="2"   y="176" font-family="IBM Plex Mono" font-size="9" fill="rgba(0,255,204,0.55)">DATA</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══ STATS (3 cards, sin "fases completadas") ═══ -->
+<div class="wrap">
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-num" data-target="73100">0</div><div class="stat-label">Registros en el dataset</div></div>
+    <div class="stat-card"><div class="stat-num" data-target="15">0</div><div class="stat-label">Variables / columnas</div></div>
+    <div class="stat-card"><div class="stat-num">71<span style="font-size:1.5rem">%</span></div><div class="stat-label">Precisión modelo ML</div></div>
+  </div>
+</div>
+
+<!-- ═══ INTRODUCCIÓN ═══ -->
+<section id="introduccion">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">01</span> Introducción</div>
+    <h2>El <span class="hl">problema</span> que resolvemos</h2>
+    <p class="lead reveal">El sector retail enfrenta pérdidas millonarias por mala gestión del inventario: sobrestock, quiebres de producto y predicciones imprecisas. La solución está en los datos.</p>
+    <div class="intro-grid reveal">
+      <div class="card intro-card"><h3>🏪 Contexto</h3><p>Empresas minoristas como Walmart usan IA para analizar historiales de pedidos, patrones de navegación y programas de fidelización, logrando gestión de inventario completamente automatizada y experiencia del cliente personalizada.</p></div>
+      <div class="card intro-card"><h3>⚠️ El dolor</h3><p>Muchas organizaciones no aprovechan el valor de su data. Hay empresas que aún gestionan ventas en papel, perdiendo oportunidades por falta de implementación tecnológica o por temas de costo para innovar.</p></div>
+      <div class="card intro-card"><h3>📉 El impacto</h3><p>Las malas predicciones generan sobrestock, liquidaciones masivas, pérdida de clientes y deterioro de márgenes. El problema afecta directamente la rentabilidad y obliga a tener capital inmovilizado.</p></div>
+      <div class="card intro-card"><h3>🎯 La solución</h3><p>Aplicar Big Data e IA sobre datos históricos de ventas para detectar patrones, generar KPIs y construir modelos de predicción de demanda basados en evidencia real de 73,100 transacciones.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ OBJETIVOS ═══ -->
+<section id="objetivos">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">02</span> Objetivos</div>
+    <h2>¿Qué <span class="hl">queremos</span> lograr?</h2>
+    <div class="obj-general reveal">
+      <h3>Objetivo General</h3>
+      <p>Mejorar el retail de empresas mediante el análisis de datos para tomar mejores decisiones basadas en evidencia, optimizando el inventario y anticipando la demanda futura con modelos de inteligencia artificial.</p>
+    </div>
+    <div class="obj-list reveal">
+      <div class="obj-item"><span class="obj-num">01</span><p class="obj-text">Analizar el comportamiento de los clientes en diferentes fechas del mes para identificar patrones de compra estacionales.</p></div>
+      <div class="obj-item"><span class="obj-num">02</span><p class="obj-text">Identificar cuáles son los clientes más frecuentes y segmentarlos según su historial de compras.</p></div>
+      <div class="obj-item"><span class="obj-num">03</span><p class="obj-text">Identificar los productos más vendidos por categoría, región y temporada del año.</p></div>
+      <div class="obj-item"><span class="obj-num">04</span><p class="obj-text">Predecir la demanda futura de productos usando modelos de machine learning (Prophet + scikit-learn).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GRÁFICOS ═══ -->
+<section id="graficos">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">03</span> Análisis visual del dataset</div>
+    <h2>Los datos <span class="hl">en gráficas</span></h2>
+    <p class="lead reveal">Visualizaciones construidas a partir de los 73,100 registros reales del dataset de Kaggle usando Python + Pandas + Seaborn.</p>
+
+    <div class="charts-grid-2 reveal">
+      <div class="chart-card">
+        <div class="chart-title">Ventas totales por categoría de producto</div>
+        <div class="ch-wrap"><canvas id="catChart"></canvas></div>
+        <div class="chart-insight">Líder: <b>Furniture (2,025,017 un.)</b> — diferencia mínima entre categorías; distribución casi uniforme.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ventas totales por región geográfica</div>
+        <div class="ch-wrap"><canvas id="regChart"></canvas></div>
+        <div class="chart-insight">Región <b>East (2,511,265 un.)</b> lidera. Cada región representa aproximadamente el 25% del total.</div>
+      </div>
+    </div>
+
+    <div class="charts-grid-2 reveal" style="margin-top:18px;">
+      <div class="chart-card">
+        <div class="chart-title">Unidades vendidas totales por mes</div>
+        <div class="ch-wrap"><canvas id="monthChart"></canvas></div>
+        <div class="chart-insight">Pico en <b>Julio (864,547 un.)</b> y mínimo en Febrero. Patrón de estacionalidad visible en verano.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Distribución de unidades vendidas por rango</div>
+        <div class="ch-wrap"><canvas id="distChart"></canvas></div>
+        <div class="chart-insight">El <b>25.5% de transacciones</b> vende entre 0–50 unidades. Distribución sesgada hacia valores bajos.</div>
+      </div>
+    </div>
+
+    <div class="charts-grid-3 reveal" style="margin-top:18px;">
+      <div class="chart-card">
+        <div class="chart-title">Demand forecast promedio por categoría</div>
+        <div class="ch-wrap-sm"><canvas id="forecastChart"></canvas></div>
+        <div class="chart-insight"><b>Furniture: 142.8 un.</b> mayor forecast promedio del modelo.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ventas promedio por temporada</div>
+        <div class="ch-wrap-sm"><canvas id="seasonChart"></canvas></div>
+        <div class="chart-insight"><b>Autumn (137.8 un.)</b> supera a Summer (135.4 un.). Diferencias leves entre estaciones.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Precio promedio por categoría ($)</div>
+        <div class="ch-wrap-sm"><canvas id="priceChart"></canvas></div>
+        <div class="chart-insight"><b>Electronics: $55.31</b> precio promedio más alto por categoría.</div>
+      </div>
+    </div>
+
+    <div class="chart-card reveal" style="margin-top:18px;">
+      <div class="chart-title">Dispersión — Precio vs Unidades Vendidas (muestra 60 pts.)</div>
+      <div style="position:relative;height:250px;"><canvas id="scatterChart"></canvas></div>
+      <div class="chart-insight">Sin correlación lineal clara. La demanda es <b>inelástica al precio</b>: factores como temporada, promociones e inventario tienen mayor influencia que el precio por sí solo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CÓDIGO ═══ -->
+<section id="codigo">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">04</span> Código del proyecto</div>
+    <h2>Lo que se <span class="hl">implementó</span></h2>
+    <p class="lead reveal">Scripts desarrollados en Python para Map Reduce, clasificación con Machine Learning, análisis exploratorio y el modelo de Data Warehouse en SQL Server.</p>
+
+    <div class="code-viewer reveal">
+      <div class="code-tabs">
+        <div class="code-tab active"  onclick="switchTab(0)">Fase 6 — Map Reduce</div>
+        <div class="code-tab"        onclick="switchTab(1)">Fase 7 — Clasificación ML</div>
+        <div class="code-tab"        onclick="switchTab(2)">Fase 3 — EDA</div>
+        <div class="code-tab"        onclick="switchTab(3)">Fase 2 — Data Warehouse SQL</div>
+      </div>
+
+      <!-- MAP REDUCE -->
+      <div class="code-panel active" id="panel0">
+        <div class="code-header"><span class="code-filename">Map_Reduce_Fase6_BigData.py</span><span class="code-lang">Python</span></div>
+        <pre><span class="cm"># ═══════════════════════════════════════════════════════════
+# FASE 6 — Map Reduce
+# Calcula ventas totales por Región y Categoría
+# Paradigma: MAP → SHUFFLE → REDUCE
+# ═══════════════════════════════════════════════════════════</span>
+
+<span class="kw">import</span> <span class="cls">pandas</span> <span class="kw">as</span> pd
+<span class="kw">from</span> <span class="cls">collections</span> <span class="kw">import</span> <span class="fn">defaultdict</span>
+
+df <span class="op">=</span> pd.<span class="fn">read_csv</span>(<span class="st">r"retail_store_inventory.csv"</span>)
+
+<span class="cm"># ─── ETAPA 1: MAP ────────────────────────────────────────
+# Para cada fila genera una tupla (clave, monto_de_venta)</span>
+mapped_region   <span class="op">=</span> []
+mapped_category <span class="op">=</span> []
+
+<span class="kw">for</span> _, row <span class="kw">in</span> df.<span class="fn">iterrows</span>():
+    region     <span class="op">=</span> row.<span class="fn">get</span>(<span class="st">"Region"</span>)
+    category   <span class="op">=</span> row.<span class="fn">get</span>(<span class="st">"Category"</span>)
+    units_sold <span class="op">=</span> row.<span class="fn">get</span>(<span class="st">"Units Sold"</span>)
+    price      <span class="op">=</span> row.<span class="fn">get</span>(<span class="st">"Price"</span>)
+
+    <span class="cm"># Validar nulos y valores no positivos</span>
+    <span class="kw">if</span> pd.<span class="fn">isna</span>(region) <span class="kw">or</span> pd.<span class="fn">isna</span>(category): <span class="kw">continue</span>
+    <span class="kw">if</span> units_sold <span class="op">&lt;=</span> <span class="nm">0</span> <span class="kw">or</span> price <span class="op">&lt;=</span> <span class="nm">0</span>: <span class="kw">continue</span>
+
+    monto <span class="op">=</span> units_sold <span class="op">*</span> price
+
+    mapped_region.<span class="fn">append</span>((region, monto))
+    mapped_category.<span class="fn">append</span>((category, monto))
+
+<span class="cm"># ─── ETAPA 2: SHUFFLE ───────────────────────────────────
+# Agrupa los valores por clave</span>
+<span class="kw">def</span> <span class="fn">agrupar</span>(mapped_data):
+    groups <span class="op">=</span> <span class="fn">defaultdict</span>(list)
+    <span class="kw">for</span> k, v <span class="kw">in</span> mapped_data:
+        groups[k].<span class="fn">append</span>(v)
+    <span class="kw">return</span> groups
+
+groups_region   <span class="op">=</span> <span class="fn">agrupar</span>(mapped_region)
+groups_category <span class="op">=</span> <span class="fn">agrupar</span>(mapped_category)
+
+<span class="cm"># ─── ETAPA 3: REDUCE ────────────────────────────────────
+# Suma todos los montos de cada grupo</span>
+reduced_region   <span class="op">=</span> {k: <span class="fn">sum</span>(vs) <span class="kw">for</span> k, vs <span class="kw">in</span> groups_region.<span class="fn">items</span>()}
+reduced_category <span class="op">=</span> {k: <span class="fn">sum</span>(vs) <span class="kw">for</span> k, vs <span class="kw">in</span> groups_category.<span class="fn">items</span>()}
+
+<span class="fn">print</span>(<span class="st">"\nVentas por región:"</span>,   reduced_region)
+<span class="fn">print</span>(<span class="st">"\nVentas por categoría:"</span>, reduced_category)</pre>
+      </div>
+
+      <!-- ML -->
+      <div class="code-panel" id="panel1">
+        <div class="code-header"><span class="code-filename">Fase7ClasificacionProyectoBD.py</span><span class="code-lang">Python · scikit-learn</span></div>
+        <pre><span class="cm"># ═══════════════════════════════════════════════════════════
+# FASE 7 — Clasificación de Alta/Baja Demanda
+# Modelo: Regresión Logística  |  Accuracy: ~71%
+# ═══════════════════════════════════════════════════════════</span>
+
+<span class="kw">import</span> <span class="cls">pandas</span> <span class="kw">as</span> pd
+<span class="kw">from</span> <span class="cls">sklearn.linear_model</span> <span class="kw">import</span> <span class="cls">LogisticRegression</span>
+<span class="kw">from</span> <span class="cls">sklearn.metrics</span>       <span class="kw">import</span> <span class="fn">accuracy_score</span>
+
+<span class="cm"># ─── Cargar datos ────────────────────────────────────────</span>
+df <span class="op">=</span> pd.<span class="fn">read_csv</span>(<span class="st">r"retail_store_inventory.csv"</span>)
+df.columns <span class="op">=</span> df.columns.str.<span class="fn">strip</span>()
+
+<span class="cm"># ─── Variable objetivo (target) ─────────────────────────
+# 1 = Alta demanda  (Units Sold > promedio)
+# 0 = Baja demanda  (Units Sold ≤ promedio)</span>
+promedio_ventas      <span class="op">=</span> df[<span class="st">'Units Sold'</span>].<span class="fn">mean</span>()        <span class="cm"># 136.46</span>
+df[<span class="st">'alta_demanda'</span>] <span class="op">=</span> (df[<span class="st">'Units Sold'</span>] <span class="op">&gt;</span> promedio_ventas).<span class="fn">astype</span>(<span class="fn">int</span>)
+
+<span class="cm"># ─── Features (6 variables predictoras) ─────────────────</span>
+X <span class="op">=</span> df[[<span class="st">'Price'</span>,
+         <span class="st">'Units Ordered'</span>,
+         <span class="st">'Inventory Level'</span>,
+         <span class="st">'Discount'</span>,
+         <span class="st">'Holiday/Promotion'</span>,
+         <span class="st">'Competitor Pricing'</span>]]
+y <span class="op">=</span> df[<span class="st">'alta_demanda'</span>]
+
+<span class="cm"># ─── Entrenamiento ───────────────────────────────────────</span>
+model <span class="op">=</span> <span class="cls">LogisticRegression</span>(max_iter<span class="op">=</span><span class="nm">1000</span>)
+model.<span class="fn">fit</span>(X, y)
+
+<span class="cm"># ─── Predicciones y evaluación ───────────────────────────</span>
+predicciones <span class="op">=</span> model.<span class="fn">predict</span>(X)
+accuracy     <span class="op">=</span> <span class="fn">accuracy_score</span>(y, predicciones)
+
+<span class="fn">print</span>(<span class="st">f"Accuracy:           {accuracy:.2%}"</span>)   <span class="cm"># → ~71%</span>
+<span class="fn">print</span>(<span class="st">f"Total de registros: {len(df)}"</span>)
+<span class="fn">print</span>(<span class="st">f"Promedio de ventas: {promedio_ventas:.2f}"</span>)
+
+<span class="cm"># Resultado: 71% de accuracy. Variables más relevantes:
+# Inventory Level y Units Ordered.
+# El modelo es útil para apoyar decisiones operativas en retail.</span></pre>
+      </div>
+
+      <!-- EDA -->
+      <div class="code-panel" id="panel2">
+        <div class="code-header"><span class="code-filename">EDA.ipynb — Análisis Exploratorio de Datos</span><span class="code-lang">Python · Jupyter Notebook</span></div>
+        <pre><span class="cm"># ═══════════════════════════════════════════════════════════
+# FASE 3 — EDA (Exploratory Data Analysis)
+# Librerías: Pandas, NumPy, Matplotlib, Seaborn
+# ═══════════════════════════════════════════════════════════</span>
+
+<span class="kw">import</span> <span class="cls">pandas</span> <span class="kw">as</span> pd
+<span class="kw">import</span> <span class="cls">numpy</span>  <span class="kw">as</span> np
+<span class="kw">import</span> <span class="cls">matplotlib.pyplot</span> <span class="kw">as</span> plt
+<span class="kw">import</span> <span class="cls">seaborn</span> <span class="kw">as</span> sns
+
+<span class="cm"># ─── 1. Carga y exploración inicial ─────────────────────</span>
+df <span class="op">=</span> pd.<span class="fn">read_csv</span>(<span class="st">"retail_store_inventory.csv"</span>)
+<span class="fn">print</span>(<span class="st">"Shape:"</span>, df.<span class="fn">shape</span>)       <span class="cm"># (73100, 15)</span>
+<span class="fn">print</span>(df.<span class="fn">describe</span>(include<span class="op">=</span><span class="st">"all"</span>))
+<span class="fn">print</span>(df.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+
+<span class="cm"># ─── 2. Normalización de columnas ───────────────────────</span>
+df[<span class="st">"Category"</span>] <span class="op">=</span> df[<span class="st">"Category"</span>].<span class="fn">astype</span>(<span class="st">"category"</span>)
+df[<span class="st">"Region"</span>]   <span class="op">=</span> df[<span class="st">"Region"</span>].<span class="fn">astype</span>(<span class="st">"category"</span>)
+cat_cols <span class="op">=</span> df.<span class="fn">select_dtypes</span>(include<span class="op">=</span>[<span class="st">"object"</span>]).columns
+df[cat_cols] <span class="op">=</span> df[cat_cols].<span class="fn">apply</span>(<span class="kw">lambda</span> c: c.<span class="fn">astype</span>(<span class="st">"string"</span>).str.<span class="fn">strip</span>().str.<span class="fn">lower</span>())
+
+<span class="cm"># ─── 3. Frecuencia por categoría ────────────────────────</span>
+cat_counts <span class="op">=</span> df[<span class="st">'Category'</span>].<span class="fn">value_counts</span>()
+plt.<span class="fn">figure</span>(figsize<span class="op">=</span>(<span class="nm">10</span>, <span class="nm">6</span>))
+sns.<span class="fn">barplot</span>(x<span class="op">=</span>cat_counts.index, y<span class="op">=</span>cat_counts.values)
+plt.<span class="fn">title</span>(<span class="st">"Frecuencia de productos por categoría"</span>)
+plt.<span class="fn">show</span>()
+
+<span class="cm"># ─── 4. Densidad Precio vs Unidades Vendidas ────────────</span>
+plt.<span class="fn">hexbin</span>(df[<span class="st">'Price'</span>], df[<span class="st">'Units Sold'</span>], gridsize<span class="op">=</span><span class="nm">50</span>, cmap<span class="op">=</span><span class="st">'Blues'</span>)
+plt.<span class="fn">colorbar</span>()
+plt.<span class="fn">title</span>(<span class="st">"Densidad: Precio vs Unidades Vendidas"</span>)
+plt.<span class="fn">show</span>()
+
+<span class="cm"># ─── 5. Mapa de calor: Región × Clima ───────────────────</span>
+pivot <span class="op">=</span> (df.<span class="fn">groupby</span>([<span class="st">"Region"</span>, <span class="st">"Weather Condition"</span>])
+           .<span class="fn">size</span>().<span class="fn">reset_index</span>(name<span class="op">=</span><span class="st">"conteo"</span>)
+           .<span class="fn">pivot</span>(index<span class="op">=</span><span class="st">"Region"</span>, columns<span class="op">=</span><span class="st">"Weather Condition"</span>, values<span class="op">=</span><span class="st">"conteo"</span>)
+           .<span class="fn">fillna</span>(<span class="nm">0</span>))
+sns.<span class="fn">heatmap</span>(pivot, annot<span class="op">=</span><span class="cls">True</span>, fmt<span class="op">=</span><span class="st">".0f"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Transacciones por Región y Clima"</span>)
+plt.<span class="fn">show</span>()
+
+<span class="cm"># ─── 6. Matriz de correlación numérica ──────────────────</span>
+df_num <span class="op">=</span> df.<span class="fn">select_dtypes</span>(include<span class="op">=</span>[<span class="st">"number"</span>])
+sns.<span class="fn">heatmap</span>(df_num.<span class="fn">corr</span>(), annot<span class="op">=</span><span class="cls">True</span>, fmt<span class="op">=</span><span class="st">".2f"</span>, cmap<span class="op">=</span><span class="st">"coolwarm"</span>)
+plt.<span class="fn">title</span>(<span class="st">"Matriz de Correlación"</span>)
+plt.<span class="fn">show</span>()</pre>
+      </div>
+
+      <!-- SQL DW -->
+      <div class="code-panel" id="panel3">
+        <div class="code-header"><span class="code-filename">Fase2_DataWarehouse.sql  —  SQL Server</span><span class="code-lang">T-SQL</span></div>
+        <pre><span class="cm">-- ═══════════════════════════════════════════════════════
+-- FASE 2 — Data Warehouse · Esquema Estrella
+-- Base de datos: RetailDW  |  Motor: SQL Server
+-- ═══════════════════════════════════════════════════════</span>
+
+<span class="dec">CREATE DATABASE</span> RetailDW;
+<span class="dec">USE</span> RetailDW;
+
+<span class="cm">-- ─── Dimensión Tiempo ────────────────────────────────</span>
+<span class="dec">CREATE TABLE</span> <span class="cy">dim_tiempo</span> (
+    id_tiempo   <span class="cls">INT</span> <span class="dec">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="dec">PRIMARY KEY</span>,
+    fecha       <span class="cls">DATE</span> <span class="dec">NOT NULL</span>,
+    anio        <span class="cls">INT</span>,
+    mes         <span class="cls">INT</span>,
+    dia         <span class="cls">INT</span>,
+    seasonality <span class="cls">VARCHAR</span>(<span class="nm">20</span>),
+    holiday     <span class="cls">BIT</span>
+);
+
+<span class="cm">-- ─── Dimensión Tienda ────────────────────────────────</span>
+<span class="dec">CREATE TABLE</span> <span class="cy">dim_tienda</span> (
+    id_tienda   <span class="cls">INT</span> <span class="dec">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="dec">PRIMARY KEY</span>,
+    store_id    <span class="cls">VARCHAR</span>(<span class="nm">10</span>) <span class="dec">NOT NULL</span>,
+    region      <span class="cls">VARCHAR</span>(<span class="nm">50</span>)
+);
+
+<span class="cm">-- ─── Dimensión Producto ──────────────────────────────</span>
+<span class="dec">CREATE TABLE</span> <span class="cy">dim_producto</span> (
+    id_producto <span class="cls">INT</span> <span class="dec">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="dec">PRIMARY KEY</span>,
+    product_id  <span class="cls">VARCHAR</span>(<span class="nm">10</span>) <span class="dec">NOT NULL</span>,
+    category    <span class="cls">VARCHAR</span>(<span class="nm">50</span>)
+);
+
+<span class="cm">-- ─── Dimensión Clima ─────────────────────────────────</span>
+<span class="dec">CREATE TABLE</span> <span class="cy">dim_clima</span> (
+    id_clima          <span class="cls">INT</span> <span class="dec">IDENTITY</span>(<span class="nm">1</span>,<span class="nm">1</span>) <span class="dec">PRIMARY KEY</span>,
+    weather_condition <span class="cls">VARCHAR</span>(<span class="nm">30</span>)
+);
+
+<span class="cm">-- ─── Tabla de Hechos (Fact Table) ────────────────────</span>
+<span class="dec">CREATE TABLE</span> <span class="cy">fact_ventas_inventario</span> (
+    fk_tiempo           <span class="cls">INT</span>            <span class="dec">NOT NULL</span>,
+    fk_tienda           <span class="cls">INT</span>            <span class="dec">NOT NULL</span>,
+    fk_producto         <span class="cls">INT</span>            <span class="dec">NOT NULL</span>,
+    fk_clima            <span class="cls">INT</span>            <span class="dec">NOT NULL</span>,
+    units_sold          <span class="cls">INT</span>,
+    units_ordered       <span class="cls">INT</span>,
+    inventory_level     <span class="cls">INT</span>,
+    demand_forecast     <span class="cls">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>),
+    price               <span class="cls">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>),
+    discount            <span class="cls">DECIMAL</span>(<span class="nm">5</span>,<span class="nm">2</span>),
+    competitor_pricing  <span class="cls">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>),
+
+    <span class="dec">PRIMARY KEY</span> (fk_tiempo, fk_tienda, fk_producto, fk_clima),
+    <span class="dec">FOREIGN KEY</span> (fk_tiempo)   <span class="dec">REFERENCES</span> dim_tiempo(id_tiempo),
+    <span class="dec">FOREIGN KEY</span> (fk_tienda)   <span class="dec">REFERENCES</span> dim_tienda(id_tienda),
+    <span class="dec">FOREIGN KEY</span> (fk_producto) <span class="dec">REFERENCES</span> dim_producto(id_producto),
+    <span class="dec">FOREIGN KEY</span> (fk_clima)    <span class="dec">REFERENCES</span> dim_clima(id_clima)
+);
+
+<span class="cm">-- ─── Carga masiva desde CSV ──────────────────────────</span>
+<span class="dec">BULK INSERT</span> staging_retail
+<span class="dec">FROM</span> <span class="st">'C:\csv retail\retail_store_inventory.csv'</span>
+<span class="dec">WITH</span> (FIRSTROW<span class="op">=</span><span class="nm">2</span>, FIELDTERMINATOR<span class="op">=</span><span class="st">','</span>, ROWTERMINATOR<span class="op">=</span><span class="st">'\n'</span>, TABLOCK);</pre>
+      </div>
+    </div><!-- /code-viewer -->
+  </div>
+</section>
+
+<!-- ═══ VISTAS SQL ═══ -->
+<section id="vistas">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">05</span> Vistas SQL analíticas</div>
+    <h2>Consultas del <span class="hl">Data Warehouse</span></h2>
+    <p class="lead reveal">Consultas analíticas construidas sobre el esquema estrella de RetailDW para responder las preguntas clave del negocio.</p>
+
+    <div class="sql-grid reveal">
+      <!-- Vista 1 -->
+      <div class="sql-card">
+        <div class="sql-head"><span class="sql-title">Ventas totales por mes</span><span class="sql-badge">Estacionalidad</span></div>
+        <pre><span class="dec">SELECT</span>
+    t.anio,
+    t.mes,
+    <span class="fn">SUM</span>(f.units_sold) <span class="dec">AS</span> <span class="cy">total_ventas</span>
+<span class="dec">FROM</span>  fact_ventas_inventario f
+<span class="dec">JOIN</span>  dim_tiempo t
+      <span class="dec">ON</span> f.fk_tiempo <span class="op">=</span> t.id_tiempo
+<span class="dec">GROUP BY</span> t.anio, t.mes
+<span class="dec">ORDER BY</span> t.anio, t.mes;</pre>
+        <div class="sql-result">
+          <div class="sql-result-lbl">Resultado esperado (muestra)</div>
+          <div class="res-row"><span>2023 · Ene →</span> 856,590 unidades</div>
+          <div class="res-row"><span>2023 · Jul →</span> 864,547 unidades (pico)</div>
+          <div class="res-row"><span>2023 · Dic →</span> 830,993 unidades</div>
+        </div>
+      </div>
+
+      <!-- Vista 2 -->
+      <div class="sql-card">
+        <div class="sql-head"><span class="sql-title">Ventas por categoría</span><span class="sql-badge">Ranking</span></div>
+        <pre><span class="dec">SELECT</span>
+    p.category,
+    <span class="fn">SUM</span>(f.units_sold)      <span class="dec">AS</span> <span class="cy">total_ventas</span>,
+    <span class="fn">AVG</span>(f.price)           <span class="dec">AS</span> <span class="cy">precio_promedio</span>,
+    <span class="fn">AVG</span>(f.demand_forecast) <span class="dec">AS</span> <span class="cy">forecast_promedio</span>
+<span class="dec">FROM</span>  fact_ventas_inventario f
+<span class="dec">JOIN</span>  dim_producto p
+      <span class="dec">ON</span> f.fk_producto <span class="op">=</span> p.id_producto
+<span class="dec">GROUP BY</span> p.category
+<span class="dec">ORDER BY</span> total_ventas <span class="dec">DESC</span>;</pre>
+        <div class="sql-result">
+          <div class="sql-result-lbl">Resultado esperado</div>
+          <div class="res-row"><span>Furniture  →</span> 2,025,017 · $55.18 · 142.8</div>
+          <div class="res-row"><span>Groceries  →</span> 2,000,482 · $55.27 · 141.9</div>
+          <div class="res-row"><span>Electronics →</span> 1,960,432 · $55.31 · 140.0</div>
+        </div>
+      </div>
+
+      <!-- Vista 3 -->
+      <div class="sql-card">
+        <div class="sql-head"><span class="sql-title">Ventas por región</span><span class="sql-badge">Geografía</span></div>
+        <pre><span class="dec">SELECT</span>
+    ti.region,
+    <span class="fn">SUM</span>(f.units_sold)  <span class="dec">AS</span> <span class="cy">total_ventas</span>,
+    <span class="fn">AVG</span>(f.inventory_level) <span class="dec">AS</span> <span class="cy">inventario_prom</span>,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)          <span class="dec">AS</span> <span class="cy">total_transacciones</span>
+<span class="dec">FROM</span>  fact_ventas_inventario f
+<span class="dec">JOIN</span>  dim_tienda ti
+      <span class="dec">ON</span> f.fk_tienda <span class="op">=</span> ti.id_tienda
+<span class="dec">GROUP BY</span> ti.region
+<span class="dec">ORDER BY</span> total_ventas <span class="dec">DESC</span>;</pre>
+        <div class="sql-result">
+          <div class="sql-result-lbl">Resultado esperado</div>
+          <div class="res-row"><span>East  →</span> 2,511,265 un. · 18,349 transacciones</div>
+          <div class="res-row"><span>South →</span> 2,507,799 un. · 18,297 transacciones</div>
+          <div class="res-row"><span>West  →</span> 2,471,552 un. · 18,226 transacciones</div>
+        </div>
+      </div>
+
+      <!-- Vista 4 -->
+      <div class="sql-card">
+        <div class="sql-head"><span class="sql-title">Impacto de feriados</span><span class="sql-badge">Promociones</span></div>
+        <pre><span class="dec">SELECT</span>
+    t.holiday,
+    t.seasonality,
+    <span class="fn">SUM</span>(f.units_sold)     <span class="dec">AS</span> <span class="cy">total_ventas</span>,
+    <span class="fn">AVG</span>(f.units_sold)     <span class="dec">AS</span> <span class="cy">venta_promedio</span>,
+    <span class="fn">AVG</span>(f.discount)       <span class="dec">AS</span> <span class="cy">descuento_prom</span>
+<span class="dec">FROM</span>  fact_ventas_inventario f
+<span class="dec">JOIN</span>  dim_tiempo t
+      <span class="dec">ON</span> f.fk_tiempo <span class="op">=</span> t.id_tiempo
+<span class="dec">GROUP BY</span> t.holiday, t.seasonality
+<span class="dec">ORDER BY</span> t.holiday <span class="dec">DESC</span>;</pre>
+        <div class="sql-result">
+          <div class="sql-result-lbl">Resultado esperado</div>
+          <div class="res-row"><span>Feriado + Autumn →</span> prom. 137.8 un.</div>
+          <div class="res-row"><span>Feriado + Summer →</span> prom. 135.4 un.</div>
+          <div class="res-row"><span>Sin feriado →</span> prom. 136.5 un. (similar)</div>
+        </div>
+      </div>
+    </div><!-- /sql-grid -->
+  </div>
+</section>
+
+<!-- ═══ MODELO ML ═══ -->
+<section id="modelo">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">06</span> Modelo de Machine Learning</div>
+    <h2>Clasificación de <span class="hl">alta demanda</span></h2>
+    <p class="lead reveal">Aplicamos un modelo de <strong>Regresión Logística</strong> (scikit-learn) sobre los 73,100 registros para predecir si un producto tendrá alta o baja demanda, con el objetivo de anticipar el reabastecimiento y evitar quiebres de stock.</p>
+
+    <!-- Métricas principales -->
+    <div class="ml-metrics reveal">
+      <div class="ml-metric-big">
+        <div class="mlm-num">71<span style="font-size:2rem">%</span></div>
+        <div class="mlm-lbl">Accuracy del modelo</div>
+        <div class="mlm-sub">7 de cada 10 predicciones son correctas</div>
+      </div>
+      <div class="ml-metric-big">
+        <div class="mlm-num" style="color:var(--cyan2)">136<span style="font-size:2rem">.46</span></div>
+        <div class="mlm-lbl">Umbral de Alta Demanda</div>
+        <div class="mlm-sub">Promedio de Units Sold del dataset</div>
+      </div>
+      <div class="ml-metric-big">
+        <div class="mlm-num" style="color:var(--yellow)">6</div>
+        <div class="mlm-lbl">Features utilizadas</div>
+        <div class="mlm-sub">Variables predictoras del modelo</div>
+      </div>
+      <div class="ml-metric-big">
+        <div class="mlm-num" style="color:var(--orange)">2</div>
+        <div class="mlm-lbl">Clases a predecir</div>
+        <div class="mlm-sub">Alta demanda (1) · Baja demanda (0)</div>
+      </div>
+    </div>
+
+    <!-- ¿Cómo funciona? -->
+    <div class="ml-how reveal">
+      <div class="card" style="flex:1.1">
+        <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">¿Qué hace el modelo?</div>
+        <p style="font-size:.9rem;line-height:1.8;color:var(--text);margin-bottom:14px;">
+          El modelo analiza cada transacción del dataset y le asigna una etiqueta binaria: <span style="color:var(--cyan2);font-family:var(--mono);">1 = Alta Demanda</span> si las unidades vendidas superan el promedio histórico de <strong>136.46 unidades</strong>, o <span style="color:var(--red);font-family:var(--mono);">0 = Baja Demanda</span> si está por debajo.
+        </p>
+
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div class="card" style="padding:20px 22px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;">Definición del target</div>
+          <div class="ml-formula">
+            <span style="color:var(--cyan2);">alta_demanda</span> <span style="color:var(--muted)">=</span>
+            <span style="color:var(--text);">1</span> <span style="color:var(--muted)">si</span>
+            <span style="color:var(--yellow);">Units_Sold</span> <span style="color:var(--muted)">></span>
+            <span style="color:var(--orange);">136.46</span>
+          </div>
+          <div class="ml-formula" style="margin-top:6px;">
+            <span style="color:var(--red);">alta_demanda</span> <span style="color:var(--muted)">=</span>
+            <span style="color:var(--text);">0</span> <span style="color:var(--muted)">si</span>
+            <span style="color:var(--yellow);">Units_Sold</span> <span style="color:var(--muted)">≤</span>
+            <span style="color:var(--orange);">136.46</span>
+          </div>
+        </div>
+        <div class="card" style="padding:20px 22px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;">Algoritmo utilizado</div>
+          <p style="font-size:.86rem;color:var(--text);line-height:1.7;">
+            <strong style="color:var(--cyan2);">Regresión Logística</strong> de scikit-learn. Ideal para clasificación binaria: es interpretable, eficiente con grandes volúmenes de datos y permite entender el peso de cada variable sobre la predicción.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="section-tag" style="margin-top:48px;margin-bottom:18px;"><span class="num">↳</span> Variables predictoras del modelo</div>
+    <div class="features-grid reveal">
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(0,212,255,0.1);border-color:var(--cyan);">💰</div>
+        <div class="feat-body">
+          <div class="feat-name">Price</div>
+          <div class="feat-desc">Precio unitario del producto. Rango: $10–$100. Promedio: $55.14. Incluida para detectar si el precio influye en el volumen de ventas.</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(0,255,204,0.1);border-color:var(--cyan2);">📦</div>
+        <div class="feat-body">
+          <div class="feat-name">Units Ordered</div>
+          <div class="feat-desc">Unidades ordenadas al proveedor. Refleja la expectativa de demanda del comprador. Alta correlación esperada con ventas reales.</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(255,209,102,0.1);border-color:var(--yellow);">🏬</div>
+        <div class="feat-body">
+          <div class="feat-name">Inventory Level</div>
+          <div class="feat-desc">Nivel de inventario en bodega. Un inventario bajo puede indicar alta rotación del producto, lo que se correlaciona con alta demanda.</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(255,123,66,0.1);border-color:var(--orange);">🏷️</div>
+        <div class="feat-body">
+          <div class="feat-name">Discount</div>
+          <div class="feat-desc">Porcentaje de descuento aplicado. Promedio: ~10%. Permite medir si las promociones de precio impulsan el volumen de ventas.</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(255,77,109,0.1);border-color:var(--red);">🎉</div>
+        <div class="feat-body">
+          <div class="feat-name">Holiday / Promotion</div>
+          <div class="feat-desc">Variable binaria (0/1): indica si la transacción ocurrió en un día festivo o en periodo de promoción activa.</div>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(167,139,250,0.1);border-color:var(--purple);">🏪</div>
+        <div class="feat-body">
+          <div class="feat-name">Competitor Pricing</div>
+          <div class="feat-desc">Precio de la competencia para productos similares. Permite capturar el efecto del mercado externo sobre la demanda interna.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados y valor de negocio -->
+    <div class="ml-results reveal">
+      <div class="card" style="flex:1">
+        <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">Resultado obtenido</div>
+        <div style="position:relative;height:180px;"><canvas id="mlAccChart"></canvas></div>
+        <p style="font-size:.83rem;color:var(--muted);margin-top:12px;font-family:var(--mono);line-height:1.5;">El modelo clasifica correctamente el <strong style="color:var(--cyan2);">71%</strong> de los registros. El 29% restante representa casos donde los factores externos (clima, eventos) generan demanda difícil de predecir sólo con estas 6 variables.</p>
+      </div>
+      <div style="flex:1.4;display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="padding:20px 22px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;">🎯 ¿Qué logramos con el modelo?</div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--cyan)"></span><p>Identificar productos con alta probabilidad de agotarse antes del próximo reabastecimiento.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--cyan2)"></span><p>Priorizar qué SKUs deben reordenarse primero, optimizando el capital invertido en inventario.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--yellow)"></span><p>Generar alertas automáticas para el gerente de tienda cuando un producto entra en zona de alta demanda.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--orange)"></span><p>Reducir el sobrestock en categorías de baja demanda, liberando espacio en bodega y capital inmovilizado.</p></div>
+        </div>
+        <div class="card" style="padding:20px 22px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--yellow);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;">⚠️ Limitaciones y mejoras futuras</div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--muted)"></span><p>El 71% podría mejorar incluyendo variables de temporada, clima y categoría como features adicionales.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--muted)"></span><p>Se podría dividir en train/test para obtener métricas de generalización más rigurosas.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--muted)"></span><p>Modelos como Random Forest o XGBoost podrían capturar relaciones no lineales entre variables.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Gráfico S003 -->
+    <div class="section-tag" style="margin-top:48px;margin-bottom:18px;"><span class="num">↳</span> Resultado práctico: Tienda S003</div>
+    <div class="ml-how reveal" style="align-items:flex-start;">
+      <div class="chart-card" style="flex:1.4;">
+        <div class="chart-title">Riesgo de stock por categoría — Tienda S003</div>
+        <div style="position:relative;height:280px;"><canvas id="s003Chart"></canvas></div>
+        <div class="chart-insight" style="margin-top:12px;">
+          <b>Electronics (215 un.)</b> y <b>Toys (210 un.)</b> presentan el mayor volumen de ventas promedio en S003, lo que aumenta el riesgo de quiebre de stock si no se reabastece a tiempo.
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="padding:22px 24px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--red);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;">⚠️ ¿Por qué S003 es la más crítica?</div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--red)"></span><p>Al revisar los niveles de inventario predichos por el modelo, <strong>la Tienda S003 es la que presenta el ratio ventas/stock más alto</strong> entre todas las sucursales analizadas.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--orange)"></span><p>Categorías como <strong>Electronics y Toys</strong> muestran promedios de venta superiores a 210 unidades, muy por encima del umbral de alta demanda de 136.46 unidades.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--yellow)"></span><p>Sin la predicción del modelo, este riesgo no sería evidente hasta que el stock ya estuviera agotado, generando pérdidas de ventas y mala experiencia al cliente.</p></div>
+        </div>
+        <div class="card" style="padding:22px 24px;">
+          <div style="font-family:var(--mono);font-size:.63rem;color:var(--cyan2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;">✅ Acción recomendada</div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--cyan2)"></span><p>Priorizar el reabastecimiento de <strong>Electronics y Toys</strong> en S003 antes del próximo ciclo de ventas.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--cyan)"></span><p>Generar una alerta automática en Power BI para el gerente de S003 cuando el inventario de estas categorías baje del umbral crítico.</p></div>
+          <div class="achieve-row"><span class="ach-dot" style="background:var(--muted)"></span><p>Revisar si <strong>Groceries (173 un.)</strong> tiene menor rotación o si la demanda está siendo cubierta correctamente con el stock actual.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="arquitectura">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">07</span> Arquitectura</div>
+    <h2>Lambda <span class="hl">Architecture</span></h2>
+    <p class="lead reveal">Arquitectura Lambda elegida por su capacidad de combinar procesamiento batch de grandes volúmenes históricos con análisis speed de datos recientes para predicciones precisas.</p>
+    <div class="arch-diagram reveal">
+      <div class="arch-layer"><div class="arch-box hi"><div class="al">Fuentes</div><div class="at">Ventas POS · Inventario · Eventos · Clima</div></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer" style="gap:14px;">
+        <div class="arch-box"><div class="al">Batch (histórico)</div><div class="at">CSV/JSON diario · Pandas</div></div>
+        <div class="arch-box"><div class="al">Speed (tiempo real)</div><div class="at">Micro-batch · Spark Streaming</div></div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="arch-box"><div class="al">Raw / Landing</div><div class="at">Data Lake local — CSV/JSON crudo</div></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="arch-box"><div class="al">Procesamiento Batch</div><div class="at">PySpark · limpieza · features · agregaciones · entrenamiento</div></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="arch-box"><div class="al">Curated / Processed</div><div class="at">Parquet limpio · Data Warehouse SQL Server · Esquema Estrella</div></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="arch-box hi"><div class="al">Análisis / IA</div><div class="at">Prophet · scikit-learn · Regresión Logística · Map-Reduce</div></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="arch-box hi"><div class="al">Consumo / Visualización</div><div class="at">Power BI · Alertas Email / Telegram</div></div></div>
+    </div>
+    <div class="tech-row reveal">
+      <div class="tech-box"><div class="tech-val">Python</div><div class="tech-desc">Pandas · scikit-learn · Prophet</div></div>
+      <div class="tech-box"><div class="tech-val">SQL Server</div><div class="tech-desc">Star Schema · Views · DW</div></div>
+      <div class="tech-box"><div class="tech-val">Power BI</div><div class="tech-desc">Dashboard · Reportes · KPIs</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONCLUSIONES ═══ -->
+<section id="conclusiones">
+  <div class="wrap">
+    <div class="section-tag"><span class="num">08</span> Conclusiones</div>
+    <h2>Lo que <span class="hl">aprendimos</span></h2>
+    <div class="conc-grid reveal">
+      <div class="conc-card"><div class="conc-icon">📊</div><h3>Valor del EDA</h3><p>Las 5 categorías tienen distribución casi uniforme (~14,600 c/u). Clima y festivos influyen en la demanda, aunque el precio por sí solo no determina el volumen de ventas.</p></div>
+      <div class="conc-card"><div class="conc-icon">🗄️</div><h3>Data Warehouse robusto</h3><p>El esquema estrella con 4 dimensiones habilitó consultas analíticas eficientes. La carga de 73,100 registros con BULK INSERT validó la arquitectura de almacenamiento.</p></div>
+      <div class="conc-card"><div class="conc-icon">🤖</div><h3>ML aplicado al retail</h3><p>Regresión logística alcanzó 71% de accuracy. Inventory Level y Units Ordered fueron las variables más relevantes para clasificar alta demanda en el entorno retail.</p></div>
+      <div class="conc-card"><div class="conc-icon">⚡</div><h3>Map Reduce funcional</h3><p>La implementación manual MAP → SHUFFLE → REDUCE demostró el paradigma de procesamiento distribuido para agregar millones de registros por región y categoría.</p></div>
+      <div class="conc-card"><div class="conc-icon">🏗️</div><h3>Arquitectura Lambda</h3><p>La separación batch / speed cubrió los requerimientos analíticos e históricos. Power BI como capa de visualización conecta el pipeline técnico con las decisiones del negocio.</p></div>
+      <div class="conc-card"><div class="conc-icon">🎯</div><h3>Big Data en retail</h3><p>Con datos estructurados, herramientas open source y modelos de IA es posible mejorar la gestión de inventario y anticipar demanda, reduciendo sobrestock y pérdidas.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-l">Retail Inteligente &amp; AI Forecasting · CUC · I Cuatrimestre 2026</span>
+  <span class="footer-l">Big Data · Prof. Ericka Valverde Navarro</span>
+</footer>
+
+<script>
+/* ── Reveal on scroll ── */
+const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:.1});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* ── Counter animation ── */
+function counter(el, target, dur=1800) {
+  let s=0;
+  const step = ts => { if(!s)s=ts; const p=Math.min((ts-s)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(e*target).toLocaleString('es'); if(p<1)requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+const sObs = new IntersectionObserver(es => {
+  if(es[0].isIntersecting){
+    document.querySelectorAll('[data-target]').forEach(el => counter(el, +el.dataset.target));
+    document.querySelectorAll('.stat-card').forEach((c,i) => setTimeout(()=>c.classList.add('go'), i*250));
+    sObs.disconnect();
+  }
+},{threshold:.3});
+sObs.observe(document.getElementById('statsRow'));
+
+/* ── Code tab switcher ── */
+function switchTab(i){
+  document.querySelectorAll('.code-tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  document.querySelectorAll('.code-panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+}
+
+/* ── Chart.js global defaults ── */
+Chart.defaults.color = '#4a6a88';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+const CYAN='#00d4ff', CYAN2='#00ffcc', ORG='#ff7b42', YEL='#ffd166', RED='#ff4d6d', PUR='#a78bfa';
+const CATS=['Clothing','Electronics','Furniture','Groceries','Toys'];
+const REGS=['East','North','South','West'];
+const MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const gridCfg = {color:'rgba(0,212,255,0.07)'};
+const tickCfg = {color:'#4a6a88'};
+
+/* ── 1. Ventas por Categoría ── */
+new Chart(document.getElementById('catChart'),{type:'bar',
+  data:{labels:CATS,datasets:[{data:[1999166,1960432,2025017,2000482,1990485],
+    backgroundColor:[CYAN+'33',CYAN2+'33',CYAN+'55',ORG+'33',YEL+'33'],
+    borderColor:[CYAN,CYAN2,CYAN,ORG,YEL],borderWidth:1.5,borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>' '+c.parsed.y.toLocaleString('es')+' un.'}}},
+    scales:{x:{grid:gridCfg,ticks:tickCfg},y:{grid:gridCfg,ticks:{...tickCfg,callback:v=>(v/1e6).toFixed(1)+'M'}}}}});
+
+/* ── 2. Ventas por Región ── */
+new Chart(document.getElementById('regChart'),{type:'doughnut',
+  data:{labels:REGS,datasets:[{data:[2511265,2484966,2507799,2471552],
+    backgroundColor:[CYAN+'66',CYAN2+'66',ORG+'66',YEL+'66'],
+    borderColor:[CYAN,CYAN2,ORG,YEL],borderWidth:1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{legend:{position:'right',labels:{padding:16,boxWidth:12}},
+      tooltip:{callbacks:{label:c=>' '+c.parsed.toLocaleString('es')+' un.'}}}}});
+
+/* ── 3. Ventas mensuales ── */
+new Chart(document.getElementById('monthChart'),{type:'line',
+  data:{labels:MONTHS,datasets:[{data:[856590,776220,842595,808457,833472,821150,864547,841417,816971,852509,830661,830993],
+    borderColor:CYAN,backgroundColor:CYAN+'18',borderWidth:2,pointBackgroundColor:CYAN,
+    pointRadius:4,pointHoverRadius:6,fill:true,tension:.35}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>' '+c.parsed.y.toLocaleString('es')+' un.'}}},
+    scales:{x:{grid:gridCfg,ticks:tickCfg},y:{grid:gridCfg,ticks:{...tickCfg,callback:v=>(v/1000).toFixed(0)+'k'}}}}});
+
+/* ── 4. Distribución ── */
+new Chart(document.getElementById('distChart'),{type:'bar',
+  data:{labels:['0–50','51–100','101–150','151–200','201–300','301+'],
+    datasets:[{data:[18660,15706,11264,8557,11110,7443],
+      backgroundColor:[CYAN+'55',CYAN2+'44',YEL+'44',ORG+'44',RED+'44',PUR+'44'],
+      borderColor:[CYAN,CYAN2,YEL,ORG,RED,PUR],borderWidth:1.5,borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>' '+c.parsed.y.toLocaleString('es')+' transacciones'}}},
+    scales:{x:{grid:gridCfg,ticks:tickCfg},y:{grid:gridCfg,ticks:{...tickCfg,callback:v=>(v/1000).toFixed(0)+'k'}}}}});
+
+/* ── 5. Demand Forecast por Categoría ── */
+new Chart(document.getElementById('forecastChart'),{type:'bar',
+  data:{labels:CATS,datasets:[{data:[141.8,140.0,142.8,141.9,141.0],
+    backgroundColor:CYAN2+'44',borderColor:CYAN2,borderWidth:1.5,borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.x+' un.'}}},
+    scales:{x:{min:138,max:144,grid:gridCfg,ticks:tickCfg},y:{grid:{display:false},ticks:tickCfg}}}});
+
+/* ── 6. Temporadas ── */
+new Chart(document.getElementById('seasonChart'),{type:'polarArea',
+  data:{labels:['Autumn','Spring','Summer','Winter'],datasets:[{data:[137.8,135.8,135.4,136.8],
+    backgroundColor:[CYAN+'55',CYAN2+'55',YEL+'55',ORG+'55'],borderColor:[CYAN,CYAN2,YEL,ORG],borderWidth:1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{padding:12,boxWidth:10}}},
+    scales:{r:{grid:{color:'rgba(0,212,255,0.1)'},ticks:{display:false},suggestedMin:134,suggestedMax:139}}}});
+
+/* ── 7. Precio por Categoría ── */
+new Chart(document.getElementById('priceChart'),{type:'bar',
+  data:{labels:CATS,datasets:[{data:[54.89,55.31,55.18,55.27,55.03],
+    backgroundColor:YEL+'44',borderColor:YEL,borderWidth:1.5,borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.parsed.x.toFixed(2)}}},
+    scales:{x:{min:54,max:56,grid:gridCfg,ticks:{...tickCfg,callback:v=>'$'+v}},y:{grid:{display:false},ticks:tickCfg}}}});
+
+/* ── S003 Stock Risk ── */
+new Chart(document.getElementById('s003Chart'),{type:'bar',
+  data:{labels:['Clothing','Electronics','Furniture','Groceries','Toys'],
+    datasets:[{
+      label:'Unidades vendidas promedio',
+      data:[188,215,205,173,210],
+      backgroundColor:['rgba(99,120,255,0.7)','rgba(99,120,255,0.9)','rgba(99,120,255,0.8)','rgba(99,120,255,0.6)','rgba(99,120,255,0.85)'],
+      borderColor:['#6378ff','#6378ff','#6378ff','#6378ff','#6378ff'],
+      borderWidth:1.5,borderRadius:3
+    }]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>` ${c.parsed.y} unidades promedio`}},
+      annotation:{annotations:{line1:{type:'line',yMin:136.46,yMax:136.46,borderColor:RED,borderWidth:2,borderDash:[6,4],
+        label:{content:'Umbral alta demanda: 136.46',display:true,position:'end',color:RED,font:{size:10,family:'IBM Plex Mono'}}}}}
+    },
+    scales:{
+      x:{title:{display:true,text:'Category',color:'#4a6a88',font:{family:'IBM Plex Mono',size:10}},grid:gridCfg,ticks:tickCfg},
+      y:{title:{display:true,text:'Cantidad',color:'#4a6a88',font:{family:'IBM Plex Mono',size:10}},grid:gridCfg,ticks:tickCfg,beginAtZero:true}
+    }}});
+new Chart(document.getElementById('mlAccChart'),{type:'doughnut',
+  data:{labels:['Predicciones Correctas (71%)','Error (29%)'],
+    datasets:[{data:[71,29],backgroundColor:[CYAN2+'99',RED+'33'],
+      borderColor:[CYAN2,RED],borderWidth:2}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+    plugins:{legend:{position:'bottom',labels:{padding:14,boxWidth:12,font:{size:10}}},
+      tooltip:{callbacks:{label:c=>` ${c.label}`}}},
+    animation:{animateRotate:true,duration:1400}}});
+const scatterData=[[40.5,138],[18.6,105],[20.3,70],[98.7,105],[10.0,76],[11.3,206],[30.5,87],[50.2,53],[61.8,129],[17.6,55],[74.4,9],[34.1,128],[71.2,327],[96.0,41],[28.0,71],[81.5,78],[65.9,470],[72.5,137],[39.4,93],[83.0,179],[15.0,273],[79.4,49],[85.3,52],[63.3,258],[63.9,82],[30.7,59],[57.7,211],[61.0,11],[95.7,8],[49.2,120],[33.3,209],[54.7,69],[84.5,326],[54.3,321],[65.5,59],[93.1,428],[81.2,125],[46.2,130],[62.3,268],[82.0,80],[45.3,164],[69.5,342],[96.0,33],[15.2,130],[74.4,99],[16.3,78],[75.0,94],[16.9,151],[52.5,242],[80.2,14],[18.9,95],[98.5,75],[24.3,113],[95.6,1],[92.7,20],[80.4,306],[11.9,92],[58.3,81],[63.7,74],[52.6,76]];
+new Chart(document.getElementById('scatterChart'),{type:'scatter',
+  data:{datasets:[{data:scatterData.map(([x,y])=>({x,y})),
+    backgroundColor:CYAN+'55',borderColor:CYAN,borderWidth:1,pointRadius:5,pointHoverRadius:7}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` Precio: $${c.parsed.x} · Unidades: ${c.parsed.y}`}}},
+    scales:{
+      x:{title:{display:true,text:'Precio ($)',color:'#4a6a88'},grid:gridCfg,ticks:tickCfg},
+      y:{title:{display:true,text:'Unidades Vendidas',color:'#4a6a88'},grid:gridCfg,ticks:tickCfg}}}});
+</script>
+</body>
+</html>
