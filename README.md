@@ -1,123 +1,386 @@
-# 🛒 Retail Inteligente — AI Forecasting
+# Algerian Forest Fires Analysis
 
-**Proyecto Big Data — Análisis y Predicción de Demanda en Retail**
-**Colegio Universitario de Cartago — Costa Rica**
+Proyecto de análisis exploratorio de datos y clustering aplicado a información meteorológica relacionada con incendios forestales en Argelia.
 
-**Integrantes:**
-- Isaac Ulloa Calvo
-- Jeffrey Jiménez Cordero
-- Jean Carlo Ramírez Carranza
+## Descripción del Proyecto
 
----
+Este proyecto analiza información meteorológica e índices del sistema **Fire Weather Index (FWI)** con el objetivo de identificar patrones presentes en condiciones relacionadas con incendios forestales.
 
-## 📌 Descripción del Proyecto
+El análisis utiliza datos registrados en dos regiones de Argelia y combina técnicas de limpieza de datos, análisis exploratorio, visualización y aprendizaje no supervisado.
 
-Este proyecto desarrolla un sistema completo de análisis y predicción de demanda para el sector retail, abarcando desde el modelado de un Data Warehouse hasta la aplicación de modelos de Machine Learning para clasificar la demanda.
+Como parte del proyecto se implementa un modelo de clustering mediante **K-Means**, permitiendo agrupar observaciones con características similares sin utilizar la variable de clasificación del dataset durante el proceso de agrupamiento.
 
-El objetivo principal es construir una infraestructura de datos robusta que permita analizar patrones de ventas, niveles de inventario, comportamiento del cliente y variables externas como clima y promociones, con el fin de apoyar la toma de decisiones empresariales.
-
-El proyecto fue desarrollado en siete fases progresivas que van desde la planificación hasta la implementación de modelos predictivos.
+El proyecto también utiliza **Principal Component Analysis (PCA)** para representar visualmente los clusters obtenidos en un espacio bidimensional.
 
 ---
 
-## 📊 Descripción del Dataset
+## Descripción del Dataset
 
-**Fuente:** [Retail Store Inventory Forecasting Dataset — Kaggle](https://www.kaggle.com/datasets/anirudhchauhan/retail-store-inventory-forecasting-dataset)
+El conjunto de datos contiene observaciones meteorológicas registradas entre junio y septiembre de 2012 en dos regiones de Argelia:
 
-El dataset contiene **73,000 registros** históricos de una cadena de tiendas retail con información de ventas, inventario, precios y condiciones externas.
+* Bejaia.
+* Sidi Bel-Abbès.
 
-### 📋 Variables del Dataset
+El dataset contiene información meteorológica e índices relacionados con el sistema Fire Weather Index.
 
-| Variable | Descripción |
-|---|---|
-| **Date** | Fecha del registro |
-| **Store ID** | Identificador de la tienda |
-| **Product ID** | Identificador del producto |
-| **Category** | Categoría del producto |
-| **Region** | Región geográfica de la tienda |
-| **Inventory Level** | Nivel de inventario disponible |
-| **Units Sold** | Unidades vendidas |
-| **Units Ordered** | Unidades ordenadas al proveedor |
-| **Demand Forecast** | Estimación de demanda |
-| **Price** | Precio del producto |
-| **Discount** | Descuento aplicado |
-| **Weather Condition** | Condición climática del día |
-| **Holiday/Promotion** | Indicador de día festivo o promoción |
-| **Competitor Pricing** | Precio de la competencia |
-| **Seasonality** | Temporada del año |
+### Variables del Dataset
 
----
+| Variable      | Descripción                        |
+| ------------- | ---------------------------------- |
+| `day`         | Día de la observación              |
+| `month`       | Mes de la observación              |
+| `year`        | Año de la observación              |
+| `Temperature` | Temperatura máxima al mediodía     |
+| `RH`          | Humedad relativa                   |
+| `Ws`          | Velocidad del viento               |
+| `Rain`        | Cantidad de lluvia diaria          |
+| `FFMC`        | Fine Fuel Moisture Code            |
+| `DMC`         | Duff Moisture Code                 |
+| `DC`          | Drought Code                       |
+| `ISI`         | Initial Spread Index               |
+| `BUI`         | Buildup Index                      |
+| `FWI`         | Fire Weather Index                 |
+| `Classes`     | Clasificación Fire o Not Fire      |
+| `Region`      | Región de procedencia del registro |
 
-## 🗄️ Arquitectura del Data Warehouse
-
-Se implementó un **esquema estrella** en SQL Server para facilitar el análisis y la consulta eficiente de los datos.
-
-### Tabla de Hechos
-**`fact_ventas_inventario`** — Contiene las métricas principales: unidades vendidas, unidades ordenadas, nivel de inventario, pronóstico de demanda, precio, descuento y precio competidor.
-
-### Dimensiones
-
-| Tabla | Descripción |
-|---|---|
-| **`dim_tiempo`** | Fecha, año, mes, día, temporada y festivo |
-| **`dim_tienda`** | ID de tienda y región |
-| **`dim_producto`** | ID de producto y categoría |
-| **`dim_clima`** | Condición climática |
-
-### Vistas SQL creadas
-
-- `vw_ventas_por_mes` — Ventas e ingresos totales agrupados por mes
-- `vw_ventas_por_categoria` — Rendimiento por categoría de producto
-- `vw_ventas_por_region` — Comparativo de ventas por región
-- `vw_ventas_por_clima` — Impacto de las condiciones climáticas en las ventas
-- `vw_forecast_vs_ventas` — Comparación entre demanda estimada y ventas reales
+El dataset original contiene 244 observaciones correspondientes a las dos regiones estudiadas.
 
 ---
 
-## 📁 Estructura del Proyecto
-Retail_Inteligente__AI_Forecasting/
+## Flujo del Proyecto
 
-**Fase 1 — Planificación**
-Definición del alcance, objetivos y requerimientos del proyecto.
-
-**Fase 2 — Modelado y Almacenamiento**
-Diseño e implementación del Data Warehouse con esquema estrella en SQL Server. Carga de los 73,000 registros mediante staging table y BULK INSERT.
-
-**Fase 4 — Vistas Analíticas**
-Creación de vistas SQL para consultas de negocio: ventas por mes, categoría, región, clima y comparativo de forecast.
-
-**Fase 5 — Streaming en Tiempo Real**
-Simulación de procesamiento en tiempo real mediante inserción manual de registros y consultas de validación en tiempo real.
-
-**Fase 6 — Map Reduce**
-Implementación del patrón Map-Shuffle-Reduce en Python para calcular ventas totales por región y por categoría de producto.
-
-**Fase 7 — Modelo Predictivo (ML)**
-Aplicación de Regresión Logística para clasificar días de alta demanda. El modelo alcanzó una precisión aproximada del **71%**, utilizando variables como precio, inventario, pedidos, descuento, promociones y precio de la competencia.
-
----
-
-## 🛠️ Tecnologías Utilizadas
-
-- **SQL Server** — Data Warehouse, modelado relacional y vistas analíticas
-- **Python 3** — Procesamiento de datos, Map Reduce y Machine Learning
-- **pandas** — Manipulación y análisis de datos
-- **scikit-learn** — Modelo de Regresión Logística
-- **Power BI / Dashboard** — Visualización de resultados
+```text
+Dataset de incendios forestales
+              ↓
+Carga de datos
+              ↓
+Limpieza y preparación
+              ↓
+Análisis exploratorio
+              ↓
+Selección de variables numéricas
+              ↓
+StandardScaler
+              ↓
+Método del codo
+              ↓
+Silhouette Score
+              ↓
+K-Means
+              ↓
+Asignación de clusters
+              ↓
+PCA
+              ↓
+Visualización y almacenamiento
+```
 
 ---
 
-## 📈 Resultados Principales
+## Análisis Exploratorio de Datos
 
-- Data Warehouse funcional con esquema estrella y 73,000 registros cargados
-- Vistas SQL que permiten analizar ventas por mes, región, categoría y clima
-- Implementación exitosa del patrón Map Reduce para agregaciones de ventas
-- Modelo de clasificación con **~71% de precisión** para identificar días de alta demanda
+La etapa de EDA permite estudiar las características generales del conjunto de datos.
+
+Durante esta fase se analizan:
+
+* Distribución de variables meteorológicas.
+* Temperatura.
+* Humedad relativa.
+* Velocidad del viento.
+* Precipitación.
+* Índices del sistema FWI.
+* Diferencias entre observaciones.
+* Relación entre variables.
+* Comportamiento de registros asociados con incendios.
+
+Los notebooks y componentes de análisis se encuentran dentro de:
+
+`PROYECTO/EDA`
 
 ---
 
-## 📌 Notas Finales
+## Clustering
 
-Este proyecto integra conceptos de Big Data, ingeniería de datos y Machine Learning aplicados al sector retail. Cada fase construye sobre la anterior, formando un pipeline completo desde el almacenamiento estructurado hasta la predicción inteligente de demanda.
+El proyecto implementa el algoritmo **K-Means** para identificar grupos de observaciones con características similares.
 
+El proceso se encuentra implementado en:
 
+`PROYECTO/CLUSTERING/PROCESO_CLUSTER.py`
+
+### Preparación de Variables
+
+Antes de aplicar clustering se excluyen:
+
+* `day`
+* `month`
+* `year`
+* `Classes`
+
+La variable `Classes` no se utiliza para formar los clusters debido a que K-Means es un algoritmo de aprendizaje no supervisado.
+
+Posteriormente se mantienen únicamente las variables numéricas.
+
+Los valores faltantes son tratados mediante la mediana de cada variable.
+
+---
+
+## Escalamiento de Datos
+
+Las variables utilizadas presentan diferentes escalas.
+
+Por esta razón se utiliza:
+
+`StandardScaler`
+
+El escalamiento transforma las variables para que puedan ser comparadas de forma adecuada durante el cálculo de distancias utilizado por K-Means.
+
+El flujo de preparación es:
+
+```text
+Variables numéricas
+        ↓
+Tratamiento de valores faltantes
+        ↓
+StandardScaler
+        ↓
+Datos escalados
+```
+
+---
+
+## Selección del Número de Clusters
+
+El proyecto utiliza dos métodos para evaluar diferentes valores de `k`.
+
+### Método del Codo
+
+Se calcula la inercia para valores de `k` entre 1 y 9.
+
+El gráfico generado permite observar cómo disminuye la inercia al aumentar el número de clusters.
+
+El resultado se almacena en:
+
+`PROYECTO/RESULTADOS/metodo_codo.png`
+
+### Silhouette Score
+
+Se calcula el Silhouette Score para valores de `k` entre 2 y 9.
+
+Esta métrica analiza la cohesión interna de los clusters y la separación entre los grupos.
+
+El script selecciona automáticamente el valor de `k` con el mayor Silhouette Score.
+
+Los resultados se almacenan en:
+
+```text
+PROYECTO/RESULTADOS/
+├── resultados_silhouette.csv
+└── silhouette_score.png
+```
+
+---
+
+## Modelo K-Means
+
+Después de seleccionar el mejor número de clusters se entrena el modelo final.
+
+```text
+Datos escalados
+      ↓
+K-Means
+      ↓
+Cluster asignado
+```
+
+Cada registro recibe una nueva variable:
+
+`Cluster`
+
+El dataset resultante se almacena en:
+
+`PROYECTO/RESULTADOS/Algerian_forest_fires_con_clusters.csv`
+
+Esto permite analizar posteriormente las características de cada grupo.
+
+---
+
+## Análisis de Centroides
+
+Los centroides representan el punto central de cada cluster.
+
+Después del entrenamiento, los centroides se transforman nuevamente a la escala original mediante:
+
+`inverse_transform`
+
+Esto permite interpretar los valores utilizando las unidades originales de las variables.
+
+Los centroides se almacenan en:
+
+`PROYECTO/RESULTADOS/centroides_clusters.csv`
+
+El análisis de centroides permite comparar las características promedio representativas de cada cluster.
+
+---
+
+## Visualización con PCA
+
+K-Means utiliza múltiples variables simultáneamente.
+
+Por esta razón, representar los clusters utilizando únicamente dos variables originales puede generar una visualización incompleta.
+
+El proyecto utiliza **Principal Component Analysis (PCA)** para reducir los datos escalados a dos componentes principales.
+
+```text
+Datos multidimensionales
+          ↓
+PCA
+          ↓
+2 componentes principales
+          ↓
+Visualización bidimensional
+```
+
+La gráfica PCA permite observar la distribución de los clusters en un espacio de dos dimensiones.
+
+El gráfico se almacena en:
+
+`PROYECTO/RESULTADOS/visualizacion_clusters_pca.png`
+
+Los datos transformados mediante PCA también se guardan en:
+
+`PROYECTO/RESULTADOS/datos_clusters_pca.csv`
+
+---
+
+## Persistencia de Modelos
+
+Los componentes utilizados durante el proceso de clustering se almacenan utilizando `joblib`.
+
+Se guardan:
+
+* Modelo K-Means.
+* StandardScaler.
+* Modelo PCA.
+* Lista de columnas utilizadas durante el entrenamiento.
+
+Los archivos permiten reutilizar el proceso sin entrenar nuevamente todos los componentes.
+
+Los modelos se almacenan en:
+
+```text
+PROYECTO/MODELOS/
+├── modelo_kmeans.pkl
+├── scaler_clustering.pkl
+├── modelo_pca.pkl
+└── columnas_clustering.pkl
+```
+
+---
+
+## Estructura del Proyecto
+
+```text
+Algerian_forest_fires/
+│
+├── PROYECTO/
+│   ├── CLUSTERING/
+│   │   ├── PROCESO_CLUSTER.py
+│   │   └── Proceso_Cluster.ipynb
+│   │
+│   ├── DATA/
+│   │   └── Algerian_forest_fires_dataset_CLEANED.csv
+│   │
+│   ├── EDA/
+│   │
+│   ├── MODELOS/
+│   │   ├── modelo_kmeans.pkl
+│   │   ├── scaler_clustering.pkl
+│   │   ├── modelo_pca.pkl
+│   │   └── columnas_clustering.pkl
+│   │
+│   └── RESULTADOS/
+│       ├── Algerian_forest_fires_con_clusters.csv
+│       ├── centroides_clusters.csv
+│       ├── resultados_silhouette.csv
+│       ├── datos_clusters_pca.csv
+│       ├── metodo_codo.png
+│       ├── silhouette_score.png
+│       └── visualizacion_clusters_pca.png
+│
+├── README.md
+└── presentacion_Algerian_forest_fires.html
+```
+
+---
+
+## Funcionamiento del Proyecto
+
+El proyecto sigue un flujo de análisis no supervisado.
+
+Primero se carga el dataset procesado y se validan las variables requeridas.
+
+Posteriormente se seleccionan las variables numéricas y se realiza el tratamiento de valores faltantes.
+
+Los datos se escalan utilizando StandardScaler para mantener escalas comparables.
+
+Después se analizan diferentes valores de `k` mediante el método del codo y Silhouette Score.
+
+El mejor valor de `k` identificado mediante Silhouette Score se utiliza para entrenar el modelo final K-Means.
+
+Cada observación recibe un cluster y los centroides se transforman nuevamente a su escala original.
+
+Finalmente, PCA reduce los datos a dos componentes principales para generar una representación visual de los grupos.
+
+Los resultados, métricas, gráficos y modelos se almacenan en carpetas independientes.
+
+---
+
+## Funcionalidades
+
+* Carga y validación del dataset.
+* Selección automática de variables numéricas.
+* Tratamiento de valores faltantes.
+* Escalamiento mediante StandardScaler.
+* Evaluación de diferentes números de clusters.
+* Aplicación del método del codo.
+* Cálculo del Silhouette Score.
+* Selección automática del mejor valor de `k`.
+* Entrenamiento de K-Means.
+* Asignación de clusters.
+* Análisis de centroides.
+* Reducción dimensional mediante PCA.
+* Visualización bidimensional de clusters.
+* Exportación de resultados en CSV.
+* Generación de gráficos.
+* Persistencia de modelos mediante joblib.
+
+---
+
+## Tecnologías Utilizadas
+
+* Python
+* pandas
+* Matplotlib
+* scikit-learn
+* Jupyter Notebook
+* joblib
+* pathlib
+
+---
+
+## Colaboradores
+
+* Isaac Ulloa Calvo
+* Tiffany Méndez Quirós
+* Edward Vindas Rivera
+* Jean Carlo Ramírez Carranza
+
+---
+
+## Notas Finales
+
+Este proyecto integra análisis exploratorio de datos y aprendizaje no supervisado para estudiar información meteorológica relacionada con incendios forestales.
+
+La implementación de K-Means permite identificar grupos de observaciones con características similares, mientras que PCA facilita la representación visual de información multidimensional.
+
+El proyecto tiene un enfoque académico y los clusters obtenidos representan agrupaciones estadísticas basadas en las variables utilizadas. No deben interpretarse como un sistema oficial de predicción o alerta de incendios forestales.
