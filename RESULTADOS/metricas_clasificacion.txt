@@ -1,0 +1,23 @@
+MODELO DE CLASIFICACIÓN DE DEMANDA
+===================================
+
+Total de registros: 73100
+Registros de entrenamiento: 58480
+Registros de prueba: 14620
+Umbral de alta demanda: 107.00
+Accuracy de prueba: 0.7124
+
+Matriz de confusión:
+[[5190 2122]
+ [2083 5225]]
+
+Reporte de clasificación:
+                precision    recall  f1-score   support
+
+Demanda normal       0.71      0.71      0.71      7312
+  Alta demanda       0.71      0.71      0.71      7308
+
+      accuracy                           0.71     14620
+     macro avg       0.71      0.71      0.71     14620
+  weighted avg       0.71      0.71      0.71     14620
+
