@@ -1,386 +1,446 @@
-# Algerian Forest Fires Analysis
+# Retail Inteligente — AI Forecasting
 
-Proyecto de análisis exploratorio de datos y clustering aplicado a información meteorológica relacionada con incendios forestales en Argelia.
+Proyecto de Big Data, análisis de datos y Machine Learning orientado al análisis y clasificación de la demanda en el sector retail.
+
+## Institución
+
+**Colegio Universitario de Cartago — Costa Rica**
+
+## Integrantes
+
+* Isaac Ulloa Calvo
+* Jeffrey Jiménez Cordero
+
+---
 
 ## Descripción del Proyecto
 
-Este proyecto analiza información meteorológica e índices del sistema **Fire Weather Index (FWI)** con el objetivo de identificar patrones presentes en condiciones relacionadas con incendios forestales.
+Retail Inteligente es un proyecto orientado al análisis de información de ventas, inventario y demanda dentro del sector retail.
 
-El análisis utiliza datos registrados en dos regiones de Argelia y combina técnicas de limpieza de datos, análisis exploratorio, visualización y aprendizaje no supervisado.
+El proyecto integra diferentes conceptos de Big Data, ingeniería de datos y Machine Learning mediante un flujo dividido en siete fases progresivas.
 
-Como parte del proyecto se implementa un modelo de clustering mediante **K-Means**, permitiendo agrupar observaciones con características similares sin utilizar la variable de clasificación del dataset durante el proceso de agrupamiento.
+Durante el desarrollo se implementan procesos de planificación, almacenamiento de datos, análisis exploratorio, construcción de un Data Warehouse, consultas analíticas, procesamiento mediante MapReduce y un modelo de clasificación de demanda.
 
-El proyecto también utiliza **Principal Component Analysis (PCA)** para representar visualmente los clusters obtenidos en un espacio bidimensional.
+El objetivo principal es transformar información histórica de ventas e inventario en resultados que permitan analizar el comportamiento de la demanda y apoyar la toma de decisiones relacionadas con inventario, pedidos y estrategias comerciales.
 
 ---
 
 ## Descripción del Dataset
 
-El conjunto de datos contiene observaciones meteorológicas registradas entre junio y septiembre de 2012 en dos regiones de Argelia:
+El proyecto utiliza el **Retail Store Inventory Forecasting Dataset**.
 
-* Bejaia.
-* Sidi Bel-Abbès.
+El conjunto de datos contiene aproximadamente 73 000 registros relacionados con ventas, inventario, precios y diferentes condiciones comerciales.
 
-El dataset contiene información meteorológica e índices relacionados con el sistema Fire Weather Index.
+### Variables principales
 
-### Variables del Dataset
-
-| Variable      | Descripción                        |
-| ------------- | ---------------------------------- |
-| `day`         | Día de la observación              |
-| `month`       | Mes de la observación              |
-| `year`        | Año de la observación              |
-| `Temperature` | Temperatura máxima al mediodía     |
-| `RH`          | Humedad relativa                   |
-| `Ws`          | Velocidad del viento               |
-| `Rain`        | Cantidad de lluvia diaria          |
-| `FFMC`        | Fine Fuel Moisture Code            |
-| `DMC`         | Duff Moisture Code                 |
-| `DC`          | Drought Code                       |
-| `ISI`         | Initial Spread Index               |
-| `BUI`         | Buildup Index                      |
-| `FWI`         | Fire Weather Index                 |
-| `Classes`     | Clasificación Fire o Not Fire      |
-| `Region`      | Región de procedencia del registro |
-
-El dataset original contiene 244 observaciones correspondientes a las dos regiones estudiadas.
+| Variable             | Descripción                      |
+| -------------------- | -------------------------------- |
+| `Date`               | Fecha del registro               |
+| `Store ID`           | Identificador de la tienda       |
+| `Product ID`         | Identificador del producto       |
+| `Category`           | Categoría del producto           |
+| `Region`             | Región geográfica                |
+| `Inventory Level`    | Nivel de inventario              |
+| `Units Sold`         | Unidades vendidas                |
+| `Units Ordered`      | Unidades solicitadas             |
+| `Demand Forecast`    | Pronóstico de demanda            |
+| `Price`              | Precio del producto              |
+| `Discount`           | Descuento aplicado               |
+| `Weather Condition`  | Condición climática              |
+| `Holiday/Promotion`  | Indicador de festivo o promoción |
+| `Competitor Pricing` | Precio de la competencia         |
+| `Seasonality`        | Temporada del año                |
 
 ---
 
-## Flujo del Proyecto
+## Flujo General del Proyecto
 
 ```text
-Dataset de incendios forestales
-              ↓
-Carga de datos
-              ↓
-Limpieza y preparación
-              ↓
+Dataset Retail
+      ↓
+Planificación del proyecto
+      ↓
+Data Warehouse
+      ↓
 Análisis exploratorio
-              ↓
-Selección de variables numéricas
-              ↓
-StandardScaler
-              ↓
-Método del codo
-              ↓
-Silhouette Score
-              ↓
-K-Means
-              ↓
-Asignación de clusters
-              ↓
-PCA
-              ↓
-Visualización y almacenamiento
+      ↓
+Vistas analíticas
+      ↓
+Procesamiento MapReduce
+      ↓
+Clasificación de demanda
+      ↓
+Evaluación y almacenamiento del modelo
 ```
 
 ---
 
-## Análisis Exploratorio de Datos
+## Fases del Proyecto
 
-La etapa de EDA permite estudiar las características generales del conjunto de datos.
+### Fase 1 — Planificación
 
-Durante esta fase se analizan:
+Se define el alcance general del proyecto, los objetivos y los requerimientos relacionados con el análisis de información retail.
 
-* Distribución de variables meteorológicas.
-* Temperatura.
-* Humedad relativa.
-* Velocidad del viento.
-* Precipitación.
-* Índices del sistema FWI.
-* Diferencias entre observaciones.
-* Relación entre variables.
-* Comportamiento de registros asociados con incendios.
+Esta fase establece la base para el desarrollo de las siguientes etapas.
 
-Los notebooks y componentes de análisis se encuentran dentro de:
+### Fase 2 — Data Warehouse
 
-`PROYECTO/EDA`
+Se diseña una arquitectura de almacenamiento basada en un esquema estrella utilizando SQL Server.
 
----
+El modelo permite organizar la información de ventas e inventario mediante una tabla de hechos y diferentes dimensiones.
 
-## Clustering
+### Fase 3 — Análisis Exploratorio de Datos
 
-El proyecto implementa el algoritmo **K-Means** para identificar grupos de observaciones con características similares.
+Se realiza un análisis exploratorio del dataset utilizando Python y Jupyter Notebook.
 
-El proceso se encuentra implementado en:
+El análisis permite estudiar:
 
-`PROYECTO/CLUSTERING/PROCESO_CLUSTER.py`
+* Distribución de las variables.
+* Comportamiento de las ventas.
+* Niveles de inventario.
+* Relación entre precios y ventas.
+* Comportamiento de las categorías.
+* Variables comerciales relacionadas con la demanda.
 
-### Preparación de Variables
+El notebook principal se encuentra en:
 
-Antes de aplicar clustering se excluyen:
+`Fases/Fase3ProyectoBigData/EDA.ipynb`
 
-* `day`
-* `month`
-* `year`
-* `Classes`
+### Fase 4 — Vistas Analíticas
 
-La variable `Classes` no se utiliza para formar los clusters debido a que K-Means es un algoritmo de aprendizaje no supervisado.
+Se desarrollan vistas SQL orientadas al análisis de negocio.
 
-Posteriormente se mantienen únicamente las variables numéricas.
+Entre las vistas implementadas se encuentran:
 
-Los valores faltantes son tratados mediante la mediana de cada variable.
+* Ventas por mes.
+* Ventas por categoría.
+* Ventas por región.
+* Ventas según condiciones climáticas.
+* Comparación entre demanda estimada y ventas reales.
 
----
+Estas vistas permiten simplificar las consultas sobre el Data Warehouse.
 
-## Escalamiento de Datos
+### Fase 5 — Procesamiento de Información
 
-Las variables utilizadas presentan diferentes escalas.
+Esta fase estudia el procesamiento y consulta de información relacionada con las operaciones retail.
 
-Por esta razón se utiliza:
+Se utilizan los datos almacenados para analizar el comportamiento de ventas e inventario.
 
-`StandardScaler`
+### Fase 6 — MapReduce
 
-El escalamiento transforma las variables para que puedan ser comparadas de forma adecuada durante el cálculo de distancias utilizado por K-Means.
+Se implementa el patrón:
 
-El flujo de preparación es:
+`Map → Shuffle → Reduce`
 
-```text
-Variables numéricas
-        ↓
-Tratamiento de valores faltantes
-        ↓
-StandardScaler
-        ↓
-Datos escalados
-```
+mediante Python.
 
----
+El proceso analiza las ventas utilizando la siguiente operación:
 
-## Selección del Número de Clusters
+`Monto de Venta = Units Sold × Price`
 
-El proyecto utiliza dos métodos para evaluar diferentes valores de `k`.
+### Etapa Map
 
-### Método del Codo
+Se generan pares clave-valor para:
 
-Se calcula la inercia para valores de `k` entre 1 y 9.
+* Región y monto de venta.
+* Categoría y monto de venta.
 
-El gráfico generado permite observar cómo disminuye la inercia al aumentar el número de clusters.
+### Etapa Shuffle
 
-El resultado se almacena en:
+Los valores se agrupan utilizando la región o categoría como clave.
 
-`PROYECTO/RESULTADOS/metodo_codo.png`
+### Etapa Reduce
 
-### Silhouette Score
+Los montos agrupados se suman para calcular:
 
-Se calcula el Silhouette Score para valores de `k` entre 2 y 9.
+* Ventas totales por región.
+* Ventas totales por categoría.
 
-Esta métrica analiza la cohesión interna de los clusters y la separación entre los grupos.
+El script utilizado es:
 
-El script selecciona automáticamente el valor de `k` con el mayor Silhouette Score.
+`Fases/Fase6ProyectoBigData/map_reduce_ventas.py`
 
 Los resultados se almacenan en:
 
 ```text
-PROYECTO/RESULTADOS/
-├── resultados_silhouette.csv
-└── silhouette_score.png
+RESULTADOS/MAP_REDUCE/
+├── ventas_por_region.csv
+└── ventas_por_categoria.csv
 ```
 
 ---
 
-## Modelo K-Means
+## Fase 7 — Clasificación de Demanda
 
-Después de seleccionar el mejor número de clusters se entrena el modelo final.
+La fase final implementa un modelo de Machine Learning utilizando **Regresión Logística**.
+
+El objetivo es clasificar los registros en:
+
+* Demanda normal.
+* Alta demanda.
+
+### Creación de la variable objetivo
+
+La variable `alta_demanda` se genera utilizando las unidades vendidas.
+
+Se calcula la mediana de:
+
+`Units Sold`
+
+Los registros superiores al umbral se clasifican como alta demanda.
 
 ```text
-Datos escalados
-      ↓
-K-Means
-      ↓
-Cluster asignado
+Units Sold > Mediana → Alta demanda
+Units Sold <= Mediana → Demanda normal
 ```
 
-Cada registro recibe una nueva variable:
+La mediana permite reducir el impacto de valores extremos y obtener una separación más equilibrada entre las clases.
 
-`Cluster`
+### Variables utilizadas por el modelo
 
-El dataset resultante se almacena en:
+El modelo utiliza:
 
-`PROYECTO/RESULTADOS/Algerian_forest_fires_con_clusters.csv`
+* `Price`
+* `Units Ordered`
+* `Inventory Level`
+* `Discount`
+* `Holiday/Promotion`
+* `Competitor Pricing`
 
-Esto permite analizar posteriormente las características de cada grupo.
+### División de datos
 
----
+El conjunto de datos se divide en:
 
-## Análisis de Centroides
+* 80 % para entrenamiento.
+* 20 % para prueba.
 
-Los centroides representan el punto central de cada cluster.
+La división utiliza estratificación para conservar la distribución de las clases.
 
-Después del entrenamiento, los centroides se transforman nuevamente a la escala original mediante:
+### Pipeline de Machine Learning
 
-`inverse_transform`
-
-Esto permite interpretar los valores utilizando las unidades originales de las variables.
-
-Los centroides se almacenan en:
-
-`PROYECTO/RESULTADOS/centroides_clusters.csv`
-
-El análisis de centroides permite comparar las características promedio representativas de cada cluster.
-
----
-
-## Visualización con PCA
-
-K-Means utiliza múltiples variables simultáneamente.
-
-Por esta razón, representar los clusters utilizando únicamente dos variables originales puede generar una visualización incompleta.
-
-El proyecto utiliza **Principal Component Analysis (PCA)** para reducir los datos escalados a dos componentes principales.
+El modelo utiliza un pipeline que integra:
 
 ```text
-Datos multidimensionales
-          ↓
-PCA
-          ↓
-2 componentes principales
-          ↓
-Visualización bidimensional
+Datos
+  ↓
+Imputación de valores faltantes
+  ↓
+StandardScaler
+  ↓
+Regresión Logística
+  ↓
+Clasificación de demanda
 ```
 
-La gráfica PCA permite observar la distribución de los clusters en un espacio de dos dimensiones.
+Los valores faltantes se reemplazan mediante la mediana.
 
-El gráfico se almacena en:
+Posteriormente, `StandardScaler` transforma las variables para mantener escalas comparables.
 
-`PROYECTO/RESULTADOS/visualizacion_clusters_pca.png`
+Finalmente, se utiliza `LogisticRegression` para realizar la clasificación.
 
-Los datos transformados mediante PCA también se guardan en:
+### Evaluación del Modelo
 
-`PROYECTO/RESULTADOS/datos_clusters_pca.csv`
+El modelo se evalúa utilizando datos que no fueron utilizados durante el entrenamiento.
 
----
+Las métricas utilizadas incluyen:
 
-## Persistencia de Modelos
+* Accuracy.
+* Matriz de confusión.
+* Precision.
+* Recall.
+* F1-score.
 
-Los componentes utilizados durante el proceso de clustering se almacenan utilizando `joblib`.
+Esto permite obtener una evaluación más representativa del rendimiento del clasificador.
 
-Se guardan:
+El resultado exacto puede variar según el conjunto de prueba utilizado y los datos disponibles.
 
-* Modelo K-Means.
-* StandardScaler.
-* Modelo PCA.
-* Lista de columnas utilizadas durante el entrenamiento.
+### Persistencia del Modelo
 
-Los archivos permiten reutilizar el proceso sin entrenar nuevamente todos los componentes.
+El modelo entrenado se guarda utilizando `joblib`.
 
-Los modelos se almacenan en:
+El archivo generado es:
 
-```text
-PROYECTO/MODELOS/
-├── modelo_kmeans.pkl
-├── scaler_clustering.pkl
-├── modelo_pca.pkl
-└── columnas_clustering.pkl
-```
+`MODELOS/modelo_clasificacion_demanda.joblib`
+
+El artefacto almacena:
+
+* Pipeline de preprocesamiento.
+* Modelo de Regresión Logística.
+* Variables utilizadas.
+* Umbral de alta demanda.
+* Etiquetas de clasificación.
+
+Esto permite reutilizar el modelo sin realizar nuevamente todo el entrenamiento.
 
 ---
 
 ## Estructura del Proyecto
 
 ```text
-Algerian_forest_fires/
+Retail_Inteligente__AI_Forecasting/
 │
-├── PROYECTO/
-│   ├── CLUSTERING/
-│   │   ├── PROCESO_CLUSTER.py
-│   │   └── Proceso_Cluster.ipynb
-│   │
-│   ├── DATA/
-│   │   └── Algerian_forest_fires_dataset_CLEANED.csv
-│   │
-│   ├── EDA/
-│   │
-│   ├── MODELOS/
-│   │   ├── modelo_kmeans.pkl
-│   │   ├── scaler_clustering.pkl
-│   │   ├── modelo_pca.pkl
-│   │   └── columnas_clustering.pkl
-│   │
-│   └── RESULTADOS/
-│       ├── Algerian_forest_fires_con_clusters.csv
-│       ├── centroides_clusters.csv
-│       ├── resultados_silhouette.csv
-│       ├── datos_clusters_pca.csv
-│       ├── metodo_codo.png
-│       ├── silhouette_score.png
-│       └── visualizacion_clusters_pca.png
+├── DATA/
+│   └── retail_store_inventory.csv
 │
-├── README.md
-└── presentacion_Algerian_forest_fires.html
+├── Fases/
+│   ├── Fase1ProyectoBigData/
+│   ├── Fase2ProyectoBigData/
+│   ├── Fase3ProyectoBigData/
+│   │   └── EDA.ipynb
+│   │
+│   ├── Fase4ProyectoBigData/
+│   ├── Fase5ProyectoBigData/
+│   │
+│   ├── Fase6ProyectoBigData/
+│   │   └── map_reduce_ventas.py
+│   │
+│   └── Fase7ProyectoBigData/
+│       └── modelo_clasificacion_demanda.py
+│
+├── MODELOS/
+│   └── modelo_clasificacion_demanda.joblib
+│
+├── RESULTADOS/
+│   ├── MAP_REDUCE/
+│   │   ├── ventas_por_region.csv
+│   │   └── ventas_por_categoria.csv
+│   │
+│   ├── metricas_clasificacion.txt
+│   └── predicciones_demanda.csv
+│
+├── .gitignore
+├── requirements.txt
+├── Dashboard.pdf
+├── Documentacion_escrita.pdf
+├── Retail_Inteligente__AI_Forecasting.html
+└── README.md
 ```
-
----
-
-## Funcionamiento del Proyecto
-
-El proyecto sigue un flujo de análisis no supervisado.
-
-Primero se carga el dataset procesado y se validan las variables requeridas.
-
-Posteriormente se seleccionan las variables numéricas y se realiza el tratamiento de valores faltantes.
-
-Los datos se escalan utilizando StandardScaler para mantener escalas comparables.
-
-Después se analizan diferentes valores de `k` mediante el método del codo y Silhouette Score.
-
-El mejor valor de `k` identificado mediante Silhouette Score se utiliza para entrenar el modelo final K-Means.
-
-Cada observación recibe un cluster y los centroides se transforman nuevamente a su escala original.
-
-Finalmente, PCA reduce los datos a dos componentes principales para generar una representación visual de los grupos.
-
-Los resultados, métricas, gráficos y modelos se almacenan en carpetas independientes.
-
----
-
-## Funcionalidades
-
-* Carga y validación del dataset.
-* Selección automática de variables numéricas.
-* Tratamiento de valores faltantes.
-* Escalamiento mediante StandardScaler.
-* Evaluación de diferentes números de clusters.
-* Aplicación del método del codo.
-* Cálculo del Silhouette Score.
-* Selección automática del mejor valor de `k`.
-* Entrenamiento de K-Means.
-* Asignación de clusters.
-* Análisis de centroides.
-* Reducción dimensional mediante PCA.
-* Visualización bidimensional de clusters.
-* Exportación de resultados en CSV.
-* Generación de gráficos.
-* Persistencia de modelos mediante joblib.
 
 ---
 
 ## Tecnologías Utilizadas
 
 * Python
+* SQL Server
 * pandas
-* Matplotlib
+* NumPy
 * scikit-learn
 * Jupyter Notebook
+* Matplotlib
+* Seaborn
 * joblib
-* pathlib
+* Power BI
 
 ---
 
-## Colaboradores
+## Instalación
 
-* Isaac Ulloa Calvo
-* Tiffany Méndez Quirós
-* Edward Vindas Rivera
-* Jean Carlo Ramírez Carranza
+Se recomienda utilizar Python 3.10 o superior.
+
+Crear un entorno virtual:
+
+```bash
+python -m venv .venv
+```
+
+Activar el entorno en PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Instalar las dependencias:
+
+```bash
+python -m pip install -r requirements.txt
+```
 
 ---
 
-## Notas Finales
+## Ejecución de MapReduce
 
-Este proyecto integra análisis exploratorio de datos y aprendizaje no supervisado para estudiar información meteorológica relacionada con incendios forestales.
+Desde la raíz del proyecto:
 
-La implementación de K-Means permite identificar grupos de observaciones con características similares, mientras que PCA facilita la representación visual de información multidimensional.
+```bash
+python "Fases/Fase6ProyectoBigData/map_reduce_ventas.py"
+```
 
-El proyecto tiene un enfoque académico y los clusters obtenidos representan agrupaciones estadísticas basadas en las variables utilizadas. No deben interpretarse como un sistema oficial de predicción o alerta de incendios forestales.
+El proceso genera los resultados de ventas por región y categoría.
+
+---
+
+## Ejecución del Modelo de Clasificación
+
+Desde la raíz del proyecto:
+
+```bash
+python "Fases/Fase7ProyectoBigData/modelo_clasificacion_demanda.py"
+```
+
+El proceso:
+
+1. Carga el dataset.
+2. Valida las columnas.
+3. Limpia las variables.
+4. Crea la variable objetivo.
+5. Divide los datos.
+6. Entrena el modelo.
+7. Genera predicciones.
+8. Calcula métricas.
+9. Guarda los resultados.
+10. Almacena el modelo entrenado.
+
+---
+
+## Resultados Generados
+
+El proyecto genera diferentes archivos para facilitar el análisis de resultados.
+
+### MapReduce
+
+* `ventas_por_region.csv`
+* `ventas_por_categoria.csv`
+
+### Machine Learning
+
+* `metricas_clasificacion.txt`
+* `predicciones_demanda.csv`
+* `modelo_clasificacion_demanda.joblib`
+
+---
+
+## Funcionalidades
+
+* Análisis de información retail.
+* Gestión de datos mediante Data Warehouse.
+* Análisis exploratorio de datos.
+* Consultas analíticas mediante vistas SQL.
+* Procesamiento MapReduce.
+* Cálculo de ventas por región.
+* Cálculo de ventas por categoría.
+* Clasificación de demanda.
+* Evaluación del modelo con datos de prueba.
+* Generación de probabilidades de alta demanda.
+* Exportación de predicciones.
+* Persistencia del modelo entrenado.
+
+---
+
+## Mejoras Futuras
+
+* Comparar Regresión Logística con Random Forest y Gradient Boosting.
+* Implementar validación cruzada.
+* Analizar la importancia de las variables.
+* Crear una API para consumir el modelo.
+* Integrar el modelo con un dashboard.
+* Automatizar el flujo de actualización de datos.
+* Incorporar modelos de forecasting de series temporales.
+* Implementar monitoreo del rendimiento del modelo.
+
+---
+
+## Uso Académico
+
+Este proyecto fue desarrollado con fines académicos para aplicar conceptos de Big Data, ingeniería de datos, procesamiento distribuido y Machine Learning en un escenario relacionado con el sector retail.
+
+Los resultados del modelo deben interpretarse como parte de un ejercicio académico de clasificación de demanda.
